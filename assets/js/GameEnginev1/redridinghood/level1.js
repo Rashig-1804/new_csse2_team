@@ -79,6 +79,15 @@ class GameLevelRedRidingHood1 {
   draw() {
     if (this.background) this.background.draw();
     if (this.player) this.player.draw();
+
+    // TITLE TEXT
+    const ctx = this.gameEnv.ctx;
+    if (ctx) {
+      ctx.fillStyle = "white"; 
+      ctx.font = "bold 30px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("The Revelation of Little Red Riding Hood", this.gameEnv.innerWidth / 2, 50);
+    }
   }
 
   resize() {
