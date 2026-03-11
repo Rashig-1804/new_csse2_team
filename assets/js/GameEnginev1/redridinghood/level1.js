@@ -10,6 +10,9 @@ class GameLevelRedRidingHood1 {
     let height = gameEnv.innerHeight;
     let path = gameEnv.path;
 
+    // Score Tracking
+    this.score = 0;
+
     // Data Definitions
     const image_data_wood = { name: 'woods', src: path + "/images/gamify/ridinghood/woods.png", pixels: { height: 580, width: 1038 } };
     const sprite_data_red = {
@@ -44,9 +47,13 @@ class GameLevelRedRidingHood1 {
     // Cookies
     this.cookies = [];
     const cookieItem = { name: 'Cookie', image: path + '/images/gamify/ridinghood/cookie.png' };
-    this.cookies.push(new FloorItem(width * 0.2, height * 0.3, cookieItem));
-    this.cookies.push(new FloorItem(width * 0.5, height * 0.4, cookieItem));
-    this.cookies.push(new FloorItem(width * 0.8, height * 0.2, cookieItem));
+    
+    // 5 Cookies placed near the base
+    this.cookies.push(new FloorItem(width * 0.1, height * 0.8, cookieItem));
+    this.cookies.push(new FloorItem(width * 0.3, height * 0.75, cookieItem));
+    this.cookies.push(new FloorItem(width * 0.5, height * 0.8, cookieItem));
+    this.cookies.push(new FloorItem(width * 0.7, height * 0.75, cookieItem));
+    this.cookies.push(new FloorItem(width * 0.9, height * 0.8, cookieItem));
   }
 
   update() {
@@ -55,6 +62,8 @@ class GameLevelRedRidingHood1 {
       if (this.checkCollision(this.player, cookie)) {
         cookie.element.remove();
         this.cookies.splice(index, 1);
+        this.score++; 
+        console.log("Cookies Collected: " + this.score);
       }
     });
   }

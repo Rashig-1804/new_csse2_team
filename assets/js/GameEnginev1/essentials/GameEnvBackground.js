@@ -1,11 +1,19 @@
 import GameObject from './GameObject.js';
 
+/** Background class for primary background
+ * */
 export class GameEnvBackground extends GameObject {
     constructor(data = null, gameEnv = null) {
         super(gameEnv);
-        this.image = new Image();
         if (data && data.src) {
+            this.image = new Image();
             this.image.src = data.src;
+            // NEW: Force a redraw as soon as the image physically loads
+            this.image.onload = () => {
+                this.draw();
+            };
+        } else {
+            this.image = null;
         }
     }
 
@@ -14,22 +22,33 @@ export class GameEnvBackground extends GameObject {
     }
 
     draw() {
+        // Safety check to ensure gameEnv and ctx exist
         if (!this.gameEnv || !this.gameEnv.ctx) return;
         
         const ctx = this.gameEnv.ctx;
         const width = this.gameEnv.innerWidth;
         const height = this.gameEnv.innerHeight;
 
-        // Force the draw even if 'complete' hasn't flagged true yet
-        if (this.image.src) {
+        if (this.image && this.image.complete && this.image.naturalWidth > 0) {
+            // Draw the background image scaled to the canvas size
             ctx.drawImage(this.image, 0, 0, width, height);
+        } else {
+            // Fill the canvas with fillstyle color if no image is provided or still loading
+            ctx.fillStyle = '#063970'; 
+            ctx.fillRect(0, 0, width, height);
         }
     }
 
+    /** For primary background, resize is the same as draw
+     *
+     */
     resize() {
         this.draw();
     }
 
+    /** Destroy Game Object
+     * remove object from this.gameEnv.gameObjects array
+     */
     destroy() {
         if (this.gameEnv && this.gameEnv.gameObjects) {
             const index = this.gameEnv.gameObjects.indexOf(this);
