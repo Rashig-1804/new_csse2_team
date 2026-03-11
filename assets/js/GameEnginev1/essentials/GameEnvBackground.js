@@ -25,11 +25,11 @@ export class GameEnvBackground extends GameObject {
         const width = this.gameEnv.innerWidth;
         const height = this.gameEnv.innerHeight;
 
-        if (this.image) {
+        if (this.image && this.image.complete && this.image.naturalWidth > 0) {
             // Draw the background image scaled to the canvas size
             ctx.drawImage(this.image, 0, 0, width, height);
         } else {
-            // Fill the canvas with fillstyle color if no image is provided
+            // Fill the canvas with fillstyle color if no image is provided or not loaded
             ctx.fillStyle = '#063970';
             ctx.fillRect(0, 0, width, height);
         }

@@ -10,8 +10,8 @@ class GameLevelRedRidingHood1 {
     let height = gameEnv.innerHeight;
     let path = gameEnv.path;
 
-    // Background data: wood.png as the woods background
-    const image_src_wood = path + "/images/gamify/wood.png"; // Adjust path if wood.png is elsewhere
+    // Background data: woods.png as the woods background
+    const image_src_wood = path + "/images/gamify/ridinghood/woods.png";
     const image_data_wood = {
       name: 'woods',
       greeting: "Welcome to the woods! Collect all the cookies to proceed!",
@@ -20,7 +20,7 @@ class GameLevelRedRidingHood1 {
     };
 
     // Player data for Red Riding Hood
-    const sprite_src_redridinghood = path + "/images/gamify/redridinghood.png"; // Replace with actual sprite path
+    const sprite_src_redridinghood = path + "/images/gamify/ridinghood/red.png";
     const REDRIDINGHOOD_SCALE_FACTOR = 5;
     const sprite_data_redridinghood = {
       id: 'Red Riding Hood',
@@ -52,7 +52,7 @@ class GameLevelRedRidingHood1 {
 
     // Create cookies as collectible FloorItems
     this.cookies = [];
-    const cookieItem = { name: 'Cookie', emoji: '🍪' }; // Define cookie item
+    const cookieItem = { name: 'Cookie', image: path + '/images/gamify/ridinghood/cookie.png' }; // Use image instead of emoji
     // Add some cookies at random positions (adjust positions as needed)
     this.cookies.push(new FloorItem(width * 0.2, height * 0.3, cookieItem));
     this.cookies.push(new FloorItem(width * 0.5, height * 0.4, cookieItem));

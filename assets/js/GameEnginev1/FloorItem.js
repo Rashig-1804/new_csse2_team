@@ -28,8 +28,11 @@ class FloorItem {
             .floor-item:hover {
                 transform: scale(1.1);
             }
-            .item-emoji {
+            .item-icon {
                 font-size: 32px;
+                width: 32px;
+                height: 32px;
+                object-fit: contain;
             }
             .item-name {
                 color: white;
@@ -42,7 +45,7 @@ class FloorItem {
         this.element = document.createElement('div');
         this.element.className = 'floor-item';
         this.element.innerHTML = `
-            <div class="item-emoji">${this.item.emoji}</div>
+            <div class="item-icon">${this.item.image ? `<img src="${this.item.image}" alt="${this.item.name}">` : this.item.emoji}</div>
             <div class="item-name">${this.item.name}</div>
         `;
         
