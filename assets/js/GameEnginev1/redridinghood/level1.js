@@ -13,6 +13,33 @@ class GameLevelRedRidingHood1 {
     // Score Tracking
     this.score = 0;
 
+    // --- HTML TITLE OVERLAY ---
+    this.titleElement = document.createElement('div');
+    this.titleElement.style.position = 'absolute';
+    this.titleElement.style.top = '20px';
+    this.titleElement.style.width = '100%';
+    this.titleElement.style.textAlign = 'center';
+    this.titleElement.style.color = 'white';
+    this.titleElement.style.fontSize = '30px';
+    this.titleElement.style.fontWeight = 'bold';
+    this.titleElement.style.fontFamily = 'Arial';
+    this.titleElement.style.zIndex = '9999';
+    this.titleElement.innerHTML = "The Revelation of Little Red Riding Hood";
+    document.body.appendChild(this.titleElement);
+
+    // --- HTML SCORE OVERLAY ---
+    this.scoreElement = document.createElement('div');
+    this.scoreElement.style.position = 'absolute';
+    this.scoreElement.style.bottom = '20px';
+    this.scoreElement.style.left = '20px';
+    this.scoreElement.style.color = 'red';
+    this.scoreElement.style.fontSize = '24px';
+    this.scoreElement.style.fontWeight = 'bold';
+    this.scoreElement.style.fontFamily = 'Arial';
+    this.scoreElement.style.zIndex = '9999'; 
+    this.scoreElement.innerHTML = "Cookies Collected: 0";
+    document.body.appendChild(this.scoreElement);
+
     // Data Definitions
     const image_data_wood = { name: 'woods', src: path + "/images/gamify/ridinghood/woods.png", pixels: { height: 580, width: 1038 } };
     const sprite_data_red = {
@@ -29,7 +56,6 @@ class GameLevelRedRidingHood1 {
       keypress: { up: 87, left: 65, down: 83, right: 68 }
     };
 
-    // THE UNIVERSAL FIX: Providing every name the engine might be looking for
     const list = [
       { class: GameEnvBackground, data: image_data_wood },
       { class: Player, data: sprite_data_red }
@@ -40,15 +66,12 @@ class GameLevelRedRidingHood1 {
     this.gameObjectClasses = list;
     this.levels = list;
 
-    // Manual Init
     this.background = new GameEnvBackground(image_data_wood, gameEnv);
     this.player = new Player(sprite_data_red, gameEnv);
 
-    // Cookies
     this.cookies = [];
     const cookieItem = { name: 'Cookie', image: path + '/images/gamify/ridinghood/cookie.png' };
     
-    // 5 Cookies placed near the base
     this.cookies.push(new FloorItem(width * 0.1, height * 0.8, cookieItem));
     this.cookies.push(new FloorItem(width * 0.3, height * 0.75, cookieItem));
     this.cookies.push(new FloorItem(width * 0.5, height * 0.8, cookieItem));
@@ -63,7 +86,9 @@ class GameLevelRedRidingHood1 {
         cookie.element.remove();
         this.cookies.splice(index, 1);
         this.score++; 
-        console.log("Cookies Collected: " + this.score);
+        if (this.scoreElement) {
+            this.scoreElement.innerHTML = "Cookies Collected: " + this.score;
+        }
       }
     });
   }
@@ -79,15 +104,6 @@ class GameLevelRedRidingHood1 {
   draw() {
     if (this.background) this.background.draw();
     if (this.player) this.player.draw();
-
-    // TITLE TEXT
-    const ctx = this.gameEnv.ctx;
-    if (ctx) {
-      ctx.fillStyle = "white"; 
-      ctx.font = "bold 30px Arial";
-      ctx.textAlign = "center";
-      ctx.fillText("The Revelation of Little Red Riding Hood", this.gameEnv.innerWidth / 2, 50);
-    }
   }
 
   resize() {
@@ -99,6 +115,9 @@ class GameLevelRedRidingHood1 {
     if (this.background) this.background.destroy();
     if (this.player) this.player.destroy();
     this.cookies.forEach(c => { if(c.element) c.element.remove(); });
+    // Clean up both HTML elements
+    if (this.titleElement) this.titleElement.remove();
+    if (this.scoreElement) this.scoreElement.remove();
   }
 }
 
