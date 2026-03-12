@@ -16,13 +16,14 @@ class GameLevelRedRidingHood1 {
     // --- HTML TITLE OVERLAY ---
     this.titleElement = document.createElement('div');
     this.titleElement.style.position = 'absolute';
-    this.titleElement.style.top = '20px';
+    this.titleElement.style.top = '60px'; 
     this.titleElement.style.width = '100%';
     this.titleElement.style.textAlign = 'center';
-    this.titleElement.style.color = 'white';
-    this.titleElement.style.fontSize = '30px';
-    this.titleElement.style.fontWeight = 'bold';
-    this.titleElement.style.fontFamily = 'Arial';
+    this.titleElement.style.color = 'red'; 
+    this.titleElement.style.fontSize = '40px'; // Made slightly bigger
+    this.titleElement.style.fontWeight = '900'; // Extra bold
+    this.titleElement.style.fontFamily = '"Courier New", Courier, monospace'; // Gothic/Tech look
+    this.titleElement.style.textShadow = '2px 2px 4px black, 0 0 10px #ff0000'; // Neon glow effect
     this.titleElement.style.zIndex = '9999';
     this.titleElement.innerHTML = "The Revelation of Little Red Riding Hood";
     document.body.appendChild(this.titleElement);
@@ -33,9 +34,10 @@ class GameLevelRedRidingHood1 {
     this.scoreElement.style.bottom = '20px';
     this.scoreElement.style.left = '20px';
     this.scoreElement.style.color = 'red';
-    this.scoreElement.style.fontSize = '24px';
+    this.scoreElement.style.fontSize = '28px';
     this.scoreElement.style.fontWeight = 'bold';
-    this.scoreElement.style.fontFamily = 'Arial';
+    this.scoreElement.style.fontFamily = '"Courier New", Courier, monospace';
+    this.scoreElement.style.textShadow = '1px 1px 2px black, 0 0 5px #ff0000';
     this.scoreElement.style.zIndex = '9999'; 
     this.scoreElement.innerHTML = "Cookies Collected: 0";
     document.body.appendChild(this.scoreElement);
@@ -115,7 +117,6 @@ class GameLevelRedRidingHood1 {
     if (this.background) this.background.destroy();
     if (this.player) this.player.destroy();
     this.cookies.forEach(c => { if(c.element) c.element.remove(); });
-    // Clean up both HTML elements
     if (this.titleElement) this.titleElement.remove();
     if (this.scoreElement) this.scoreElement.remove();
   }
