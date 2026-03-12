@@ -130,6 +130,7 @@ class GameLevelRedRidingHood2 {
   }
 
   update() {
+    if (!this.gameControl || !this.gameControl.gameObjects) return;
     this.barriers.forEach(barrier => {
         this.gameControl.gameObjects.forEach(obj => {
             if ((obj instanceof Player || obj instanceof Wolf) && this.checkCollision(obj, barrier)) {
