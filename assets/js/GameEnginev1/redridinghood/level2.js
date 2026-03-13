@@ -33,18 +33,25 @@ class Wolf extends Character {
     const W = this.gameEnv.innerWidth;
     const H = this.gameEnv.innerHeight;
     return [
-      { x: W * 0.10, y: H * 0.95 },  // Village bottom-left start
-      { x: W * 0.20, y: H * 0.75 },  // winding up from village
-      { x: W * 0.30, y: H * 0.55 },  // curve up toward wolf's lair
-      { x: W * 0.38, y: H * 0.35 },  // up toward forest path top
-      { x: W * 0.50, y: H * 0.25 },  // Forest Path center-top
-      { x: W * 0.60, y: H * 0.35 },  // curving right
-      { x: W * 0.65, y: H * 0.55 },  // winding down-right
-      { x: W * 0.72, y: H * 0.70 },  // toward bridge
-      { x: W * 0.78, y: H * 0.80 },  // crossing bridge
-      { x: W * 0.85, y: H * 0.60 },  // up-right after bridge
-      { x: W * 0.90, y: H * 0.35 },  // heading to cottage
-      { x: W * 0.95, y: H * 0.10 },  // Grandma's Cottage top-right
+      { x: W * 0.09, y: H * 0.80 },
+      { x: W * 0.14, y: H * 0.72 },
+      { x: W * 0.20, y: H * 0.68 },
+      { x: W * 0.26, y: H * 0.67 },
+      { x: W * 0.32, y: H * 0.41 },
+      { x: W * 0.37, y: H * 0.28 },
+      { x: W * 0.44, y: H * 0.23 },
+      { x: W * 0.50, y: H * 0.22 },
+      { x: W * 0.56, y: H * 0.28 },
+      { x: W * 0.58, y: H * 0.40 },
+      { x: W * 0.57, y: H * 0.53 },
+      { x: W * 0.58, y: H * 0.72 },
+      { x: W * 0.63, y: H * 0.81 },
+      { x: W * 0.68, y: H * 0.82 },
+      { x: W * 0.72, y: H * 0.82 },
+      { x: W * 0.76, y: H * 0.44 },
+      { x: W * 0.80, y: H * 0.30 },
+      { x: W * 0.85, y: H * 0.20 },
+      { x: W * 0.90, y: H * 0.13 },
     ];
   }
 
@@ -92,6 +99,7 @@ class GameLevelRedRidingHood2 {
 
     this.continue = true;
     this.debugMode = false;
+    this.wonGame = false;
 
     this.titleElement = document.createElement('div');
     this.titleElement.style.position = 'absolute';
@@ -107,13 +115,68 @@ class GameLevelRedRidingHood2 {
     this.titleElement.innerHTML = "LEVEL 2: THE CHASE";
     document.body.appendChild(this.titleElement);
 
-    this.barriers = [
-        new PathBarrier(0, 0, width * 0.35, height * 0.45, gameEnv),        
-        new PathBarrier(width * 0.45, height * 0.25, width * 0.15, height * 0.4, gameEnv), 
-        new PathBarrier(width * 0.75, height * 0.5, width * 0.25, height * 0.5, gameEnv)   
-    ];
+    // Win zone - Grandma's Cottage top-right
+    this.cottageZone = {
+      x: width * 0.82,
+      y: 0,
+      width: width * 0.15,
+      height: height * 0.25
+    };
+
+    this.winPopup = document.createElement('div');
+    this.winPopup.style.display = 'none';
+    this.winPopup.style.position = 'absolute';
+    this.winPopup.style.top = '50%';
+    this.winPopup.style.left = '50%';
+    this.winPopup.style.transform = 'translate(-50%, -50%)';
+    this.winPopup.style.background = 'linear-gradient(135deg, #2d0a0a, #6b1a1a)';
+    this.winPopup.style.border = '4px solid #ff4444';
+    this.winPopup.style.borderRadius = '20px';
+    this.winPopup.style.padding = '40px 50px';
+    this.winPopup.style.textAlign = 'center';
+    this.winPopup.style.zIndex = '99999';
+    this.winPopup.style.boxShadow = '0 0 40px rgba(255,0,0,0.6), 0 0 80px rgba(255,0,0,0.3)';
+    this.winPopup.style.maxWidth = '500px';
+    this.winPopup.innerHTML = `
+      <div style="font-size: 60px; margin-bottom: 10px;">🏠❤️</div>
+      <div style="color: #ff6666; font-size: 28px; font-weight: 900; font-family: 'Courier New', monospace; text-shadow: 0 0 10px #ff0000; margin-bottom: 15px;">
+        YOU MADE IT!
+      </div>
+      <div style="color: #ffcccc; font-size: 16px; font-family: 'Courier New', monospace; line-height: 1.6; margin-bottom: 25px;">
+        🐺 You outran the Big Bad Wolf! 🐺<br><br>
+        Grandma is safe and sound.<br>
+        The wolf huffed and puffed...<br>
+        but Little Red was too fast! 🌹
+      </div>
+      <button id="winContinueBtn" style="
+        background: #ff2222;
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        font-size: 18px;
+        font-weight: 900;
+        font-family: 'Courier New', monospace;
+        border-radius: 10px;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        box-shadow: 0 0 15px rgba(255,0,0,0.5);
+      ">Close ✕</button>
+    `;
+    document.body.appendChild(this.winPopup);
 
     this.redStartPosition = { x: 50, y: height * 0.75 };
+
+    this.barriers = [
+      // 1. TOP LEFT - big forest block (Wolf's Lair)
+      new PathBarrier(0, 0, width * 0.28, height * 0.70, gameEnv),
+      // 2. CENTER ISLAND - forest in middle of S-loop
+      new PathBarrier(width * 0.38, height * 0.27, width * 0.22, height * 0.37, gameEnv),
+      // 3. TOP RIGHT - forest above right path to cottage
+      new PathBarrier(width * 0.64, 0, width * 0.33, height * 0.22, gameEnv),
+      // 4. BOTTOM RIGHT - forest below bridge and right path
+      new PathBarrier(width * 0.75, height * 0.55, width * 0.22, height * 0.37, gameEnv),
+    ];
 
     const image_data_chase = {
       name: 'chase',
@@ -141,7 +204,7 @@ class GameLevelRedRidingHood2 {
       SCALE_FACTOR: 3.5,
       STEP_FACTOR: 1000,
       ANIMATION_RATE: 8,
-      INIT_POSITION: { x: width * 0.10, y: height * 0.95 },
+      INIT_POSITION: { x: width * 0.09, y: height * 0.82 },
       pixels: { height: 395, width: 632 },
       orientation: { rows: 1, columns: 1 },
       direction: 'right',
@@ -154,6 +217,26 @@ class GameLevelRedRidingHood2 {
       { class: Player, data: sprite_data_red },
       { class: Wolf, data: sprite_data_wolf }
     ];
+  }
+
+  showWinPopup() {
+    this.winPopup.style.display = 'block';
+    const btn = document.getElementById('winContinueBtn');
+    if (btn) {
+      btn.onclick = () => {
+        this.winPopup.style.display = 'none';
+      };
+    }
+  }
+
+  checkInZone(player, zone) {
+    if (!player?.position) return false;
+    return (
+      player.position.x + player.width > zone.x &&
+      player.position.x < zone.x + zone.width &&
+      player.position.y + player.height > zone.y &&
+      player.position.y < zone.y + zone.height
+    );
   }
 
   checkCollision(rect1, rect2) {
@@ -187,6 +270,11 @@ class GameLevelRedRidingHood2 {
       if (obj instanceof Wolf) wolf = obj;
     });
 
+    if (player && !this.wonGame && this.checkInZone(player, this.cottageZone)) {
+      this.wonGame = true;
+      this.showWinPopup();
+    }
+
     if (player && wolf && this.checkPlayerWolfCollision(player, wolf)) {
       player.position.x = this.redStartPosition.x;
       player.position.y = this.redStartPosition.y;
@@ -212,6 +300,7 @@ class GameLevelRedRidingHood2 {
 
   destroy() {
     if (this.titleElement && this.titleElement.parentNode) this.titleElement.remove();
+    if (this.winPopup && this.winPopup.parentNode) this.winPopup.remove();
   }
 }
 
