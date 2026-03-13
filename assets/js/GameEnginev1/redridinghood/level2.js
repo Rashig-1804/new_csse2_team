@@ -115,7 +115,6 @@ class GameLevelRedRidingHood2 {
     this.titleElement.innerHTML = "LEVEL 2: THE CHASE";
     document.body.appendChild(this.titleElement);
 
-    // Win zone - Grandma's Cottage top-right
     this.cottageZone = {
       x: width * 0.82,
       y: 0,
@@ -138,15 +137,14 @@ class GameLevelRedRidingHood2 {
     this.winPopup.style.boxShadow = '0 0 40px rgba(255,0,0,0.6), 0 0 80px rgba(255,0,0,0.3)';
     this.winPopup.style.maxWidth = '500px';
     this.winPopup.innerHTML = `
-      <div style="font-size: 60px; margin-bottom: 10px;">🏠❤️</div>
-      <div style="color: #ff6666; font-size: 28px; font-weight: 900; font-family: 'Courier New', monospace; text-shadow: 0 0 10px #ff0000; margin-bottom: 15px;">
-        YOU MADE IT!
+      <div style="font-size: 60px; margin-bottom: 10px;">🐺😶</div>
+      <div style="color: #ff6666; font-size: 32px; font-weight: 900; font-family: 'Courier New', monospace; text-shadow: 0 0 10px #ff0000; margin-bottom: 15px;">
+        CHAPTER CLOSED.
       </div>
-      <div style="color: #ffcccc; font-size: 16px; font-family: 'Courier New', monospace; line-height: 1.6; margin-bottom: 25px;">
-        🐺 You outran the Big Bad Wolf! 🐺<br><br>
-        Grandma is safe and sound.<br>
-        The wolf huffed and puffed...<br>
-        but Little Red was too fast! 🌹
+      <div style="color: #ffcccc; font-size: 17px; font-family: 'Courier New', monospace; line-height: 1.8; margin-bottom: 25px;">
+        Red Riding Hood ran away.<br>
+        The wolf tried.<br>
+        <span style="color:#ff4444;">Red knew the fairytale better.</span>
       </div>
       <button id="winContinueBtn" style="
         background: #ff2222;
@@ -168,13 +166,9 @@ class GameLevelRedRidingHood2 {
     this.redStartPosition = { x: 50, y: height * 0.75 };
 
     this.barriers = [
-      // 1. TOP LEFT - big forest block (Wolf's Lair)
       new PathBarrier(0, 0, width * 0.28, height * 0.70, gameEnv),
-      // 2. CENTER ISLAND - forest in middle of S-loop
       new PathBarrier(width * 0.38, height * 0.27, width * 0.22, height * 0.37, gameEnv),
-      // 3. TOP RIGHT - forest above right path to cottage
       new PathBarrier(width * 0.64, 0, width * 0.33, height * 0.22, gameEnv),
-      // 4. BOTTOM RIGHT - forest below bridge and right path
       new PathBarrier(width * 0.75, height * 0.55, width * 0.22, height * 0.37, gameEnv),
     ];
 
