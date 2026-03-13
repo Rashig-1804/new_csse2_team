@@ -23,40 +23,75 @@ class PathBarrier {
 class Wolf extends Character {
   constructor(data, gameEnv) {
     super(data, gameEnv);
-    this.position = data.INIT_POSITION || { x: -this.width, y: gameEnv.innerHeight * 0.5 };
-    this.velocity = { x: data.SPEED || 2, y: 0 };
-    this.wrap = data.WRAP || true;
+    this.velocity = { x: 0, y: 0 };
+    this.speed = data.SPEED || 2;
+    this.waypoints = null;
+    this.waypointIndex = 0;
+  }
+
+  buildWaypoints() {
+    const W = this.gameEnv.innerWidth;
+    const H = this.gameEnv.innerHeight;
+    return [
+      { x: W * 0.10, y: H * 0.95 },  // Village bottom-left start
+      { x: W * 0.20, y: H * 0.75 },  // winding up from village
+      { x: W * 0.30, y: H * 0.55 },  // curve up toward wolf's lair
+      { x: W * 0.38, y: H * 0.35 },  // up toward forest path top
+      { x: W * 0.50, y: H * 0.25 },  // Forest Path center-top
+      { x: W * 0.60, y: H * 0.35 },  // curving right
+      { x: W * 0.65, y: H * 0.55 },  // winding down-right
+      { x: W * 0.72, y: H * 0.70 },  // toward bridge
+      { x: W * 0.78, y: H * 0.80 },  // crossing bridge
+      { x: W * 0.85, y: H * 0.60 },  // up-right after bridge
+      { x: W * 0.90, y: H * 0.35 },  // heading to cottage
+      { x: W * 0.95, y: H * 0.10 },  // Grandma's Cottage top-right
+    ];
   }
 
   update() {
+    if (!this.waypoints) {
+      this.waypoints = this.buildWaypoints();
+      this.position.x = this.waypoints[0].x;
+      this.position.y = this.waypoints[0].y;
+      this.waypointIndex = 1;
+    }
+
+    if (this.waypointIndex >= this.waypoints.length) {
+      this.waypointIndex = 0;
+      this.position.x = this.waypoints[0].x;
+      this.position.y = this.waypoints[0].y;
+      this.waypointIndex = 1;
+    }
+
+    const target = this.waypoints[this.waypointIndex];
+    const dx = target.x - this.position.x;
+    const dy = target.y - this.position.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (dist < this.speed + 1) {
+      this.position.x = target.x;
+      this.position.y = target.y;
+      this.waypointIndex++;
+    } else {
+      this.velocity.x = (dx / dist) * this.speed;
+      this.velocity.y = (dy / dist) * this.speed;
+      this.position.x += this.velocity.x;
+      this.position.y += this.velocity.y;
+    }
+
     this.draw();
-    this.collisionChecks();
-    this.move();
-
-    if (this.position.x > this.gameEnv.innerWidth) {
-      this.position.x = -this.width;
-    }
-    if (this.position.x + this.width < 0) {
-      this.position.x = this.gameEnv.innerWidth;
-    }
-  }
-
-  move() {
-    this.position.x += this.velocity.x;
-    this.position.y += this.velocity.y;
   }
 }
 
 class GameLevelRedRidingHood2 {
-  constructor(gameEnv, game) {
+  constructor(gameEnv) {
     this.gameEnv = gameEnv;
-    this.gameControl = game;
     let width = gameEnv.innerWidth;
     let height = gameEnv.innerHeight;
     let path = gameEnv.path;
 
     this.continue = true;
-    this.debugMode = false; 
+    this.debugMode = false;
 
     this.titleElement = document.createElement('div');
     this.titleElement.style.position = 'absolute';
@@ -77,6 +112,8 @@ class GameLevelRedRidingHood2 {
         new PathBarrier(width * 0.45, height * 0.25, width * 0.15, height * 0.4, gameEnv), 
         new PathBarrier(width * 0.75, height * 0.5, width * 0.25, height * 0.5, gameEnv)   
     ];
+
+    this.redStartPosition = { x: 50, y: height * 0.75 };
 
     const image_data_chase = {
       name: 'chase',
@@ -104,7 +141,7 @@ class GameLevelRedRidingHood2 {
       SCALE_FACTOR: 3.5,
       STEP_FACTOR: 1000,
       ANIMATION_RATE: 8,
-      INIT_POSITION: { x: 400, y: height * 0.5 }, 
+      INIT_POSITION: { x: width * 0.10, y: height * 0.95 },
       pixels: { height: 395, width: 632 },
       orientation: { rows: 1, columns: 1 },
       direction: 'right',
@@ -129,15 +166,41 @@ class GameLevelRedRidingHood2 {
     );
   }
 
+  checkPlayerWolfCollision(player, wolf) {
+    if (!player?.position || !wolf?.position) return false;
+    return (
+      player.position.x < wolf.position.x + wolf.width &&
+      player.position.x + player.width > wolf.position.x &&
+      player.position.y < wolf.position.y + wolf.height &&
+      player.position.y + player.height > wolf.position.y
+    );
+  }
+
   update() {
-    if (!this.gameControl || !this.gameControl.gameObjects) return;
+    if (!this.gameEnv || !this.gameEnv.gameObjects) return;
+
+    let player = null;
+    let wolf = null;
+
+    this.gameEnv.gameObjects.forEach(obj => {
+      if (obj instanceof Player) player = obj;
+      if (obj instanceof Wolf) wolf = obj;
+    });
+
+    if (player && wolf && this.checkPlayerWolfCollision(player, wolf)) {
+      player.position.x = this.redStartPosition.x;
+      player.position.y = this.redStartPosition.y;
+      player.velocity.x = 0;
+      player.velocity.y = 0;
+    }
+
     this.barriers.forEach(barrier => {
-        this.gameControl.gameObjects.forEach(obj => {
-            if ((obj instanceof Player || obj instanceof Wolf) && this.checkCollision(obj, barrier)) {
-                obj.position.x -= obj.velocity.x;
-                obj.position.y -= obj.velocity.y;
-            }
-        });
+      this.gameEnv.gameObjects.forEach(obj => {
+        if (obj instanceof Player && this.checkCollision(obj, barrier)) {
+          obj.position.x -= obj.velocity.x;
+          obj.position.y -= obj.velocity.y;
+        }
+      });
     });
   }
 
