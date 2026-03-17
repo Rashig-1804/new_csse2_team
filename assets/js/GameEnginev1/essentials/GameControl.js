@@ -110,6 +110,13 @@ class GameControl {
         // Clean up any lingering interaction handlers
         this.cleanupInteractionHandlers();
 
+        // Remove any leftover canvases from previous levels to avoid "stacked" backgrounds
+        // (sometimes a canvas can remain if destroy isn't called properly)
+        if (this.gameContainer) {
+            const canvases = this.gameContainer.querySelectorAll('canvas');
+            canvases.forEach(c => c.remove());
+        }
+
         // If there's an existing level instance, destroy it before creating the next one.
         // This ensures canvases and game objects from the previous level are removed
         // and prevents leftover player canvases that can't be controlled.
@@ -123,6 +130,35 @@ class GameControl {
         }
 
         const GameLevelClass = this.levelClasses[this.currentLevelIndex];
+        this.currentLevel = new GameLevel(this);
+        this.currentLevel.create(GameLevelClass);
+        this.gameLoop();
+    }
+
+    /**
+     * Transitions to a specific level class
+     * @param {Function} GameLevelClass - The level class to transition to
+     */
+    transitionToSpecificLevel(GameLevelClass) {
+        // Clean up any lingering interaction handlers
+        this.cleanupInteractionHandlers();
+
+        // Remove any leftover canvases from previous levels to avoid "stacked" backgrounds
+        if (this.gameContainer) {
+            const canvases = this.gameContainer.querySelectorAll('canvas');
+            canvases.forEach(c => c.remove());
+        }
+
+        // If there's an existing level instance, destroy it before creating the next one.
+        if (this.currentLevel && typeof this.currentLevel.destroy === 'function') {
+            try {
+                this.currentLevel.destroy();
+            } catch (e) {
+                console.error('Error destroying previous level:', e);
+            }
+            this.currentLevel = null;
+        }
+
         this.currentLevel = new GameLevel(this);
         this.currentLevel.create(GameLevelClass);
         this.gameLoop();

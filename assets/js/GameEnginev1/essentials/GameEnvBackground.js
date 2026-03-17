@@ -8,6 +8,11 @@ export class GameEnvBackground extends GameObject {
         if (data && data.src) {
             this.image = new Image();
             this.image.src = data.src;
+            // Optional zoom/crop controls (useful for resizing backgrounds)
+            // - zoom: number > 1 to zoom in (cropping from center)
+            // - crop: { x, y, width, height } to manually select a portion of the image
+            this.zoom = data.zoom || 1;
+            this.crop = data.crop || null;
             // NEW: Force a redraw as soon as the image physically loads
             this.image.onload = () => {
                 this.draw();
@@ -31,7 +36,25 @@ export class GameEnvBackground extends GameObject {
 
         if (this.image && this.image.complete && this.image.naturalWidth > 0) {
             // Draw the background image scaled to the canvas size
-            ctx.drawImage(this.image, 0, 0, width, height);
+            // Optional zoom/crop lets us "zoom in" or display a subsection of the source image
+            let sx = 0;
+            let sy = 0;
+            let sw = this.image.naturalWidth;
+            let sh = this.image.naturalHeight;
+
+            if (this.crop) {
+                sx = this.crop.x || 0;
+                sy = this.crop.y || 0;
+                sw = this.crop.width || sw;
+                sh = this.crop.height || sh;
+            } else if (this.zoom && this.zoom > 1) {
+                sw = Math.floor(this.image.naturalWidth / this.zoom);
+                sh = Math.floor(this.image.naturalHeight / this.zoom);
+                sx = Math.floor((this.image.naturalWidth - sw) / 2);
+                sy = Math.floor((this.image.naturalHeight - sh) / 2);
+            }
+
+            ctx.drawImage(this.image, sx, sy, sw, sh, 0, 0, width, height);
         } else {
             // Fill the canvas with fillstyle color if no image is provided or still loading
             ctx.fillStyle = '#063970'; 

@@ -111,8 +111,8 @@ class GameLevelRedRidingHood1 {
     this.gameObjectClasses = list;
     this.levels = list;
 
-    this.background = new GameEnvBackground(image_data_wood, gameEnv);
-    this.player = new Player(sprite_data_red, gameEnv);
+    // Note: Objects are created by GameLevel system from this.classes
+    // Do not manually create this.background and this.player here
 
     this.cookies = [];
     const cookieItem = { name: 'Cookie', image: path + '/images/gamify/ridinghood/cookie.png' };
@@ -124,17 +124,20 @@ class GameLevelRedRidingHood1 {
   }
 
   update() {
-    if (this.player) this.player.update();
-    for (let i = this.cookies.length - 1; i >= 0; i--) {
-      if (this.checkCollision(this.player, this.cookies[i])) {
-        this.cookies[i].element.remove();
-        this.cookies.splice(i, 1);
-        this.score++;
-        if (this.scoreElement) {
-          this.scoreElement.innerHTML = "Cookies Collected: " + this.score;
-        }
-        if (this.score === 5) {
-          this.successElement.style.display = 'block';
+    // Get player from game objects (created by GameLevel system)
+    const player = this.gameEnv.gameObjects.find(obj => obj instanceof Player);
+    if (player) {
+      for (let i = this.cookies.length - 1; i >= 0; i--) {
+        if (this.checkCollision(player, this.cookies[i])) {
+          this.cookies[i].element.remove();
+          this.cookies.splice(i, 1);
+          this.score++;
+          if (this.scoreElement) {
+            this.scoreElement.innerHTML = "Cookies Collected: " + this.score;
+          }
+          if (this.score === 5) {
+            this.successElement.style.display = 'block';
+          }
         }
       }
     }
@@ -149,18 +152,16 @@ class GameLevelRedRidingHood1 {
   }
 
   draw() {
-    if (this.background) this.background.draw();
-    if (this.player) this.player.draw();
+    // GameLevel system handles drawing of background and player
+    // Only draw cookies here if needed
   }
 
   resize() {
-    if (this.background) this.background.resize();
-    if (this.player) this.player.resize();
+    // GameLevel system handles resizing of background and player
   }
 
   destroy() {
-    if (this.background) this.background.destroy();
-    if (this.player) this.player.destroy();
+    // GameLevel system handles destroying background and player
     this.cookies.forEach(c => { if(c.element) c.element.remove(); });
     if (this.titleElement && this.titleElement.parentNode) this.titleElement.remove();
     if (this.scoreElement && this.scoreElement.parentNode) this.scoreElement.remove();

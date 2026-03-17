@@ -66,8 +66,20 @@ class GameLevel {
       }
     }
 
+    // Draw all game objects
+    for (let gameObject of this.gameEnv.gameObjects) {
+      if (gameObject && typeof gameObject.draw === 'function') {
+        gameObject.draw()
+      }
+    }
+
     if (typeof this.gameLevel.update === "function") {
       this.gameLevel.update()
+    }
+
+    // Draw custom level graphics (backgrounds, etc.)
+    if (typeof this.gameLevel.draw === "function") {
+      this.gameLevel.draw()
     }
   }
 

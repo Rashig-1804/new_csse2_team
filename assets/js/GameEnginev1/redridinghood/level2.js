@@ -267,6 +267,14 @@ class GameLevelRedRidingHood2 {
     if (player && !this.wonGame && this.checkInZone(player, this.cottageZone)) {
       this.wonGame = true;
       this.showWinPopup();
+      // Transition to level 3 after a short delay
+      setTimeout(() => {
+        if (this.gameEnv && this.gameEnv.gameControl) {
+          // Set the level index to 2 (level 3) and transition
+          this.gameEnv.gameControl.currentLevelIndex = 2;
+          this.gameEnv.gameControl.transitionToLevel();
+        }
+      }, 2000); // 2 second delay to show the win message
     }
 
     if (player && wolf && this.checkPlayerWolfCollision(player, wolf)) {

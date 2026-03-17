@@ -1,7 +1,7 @@
 ---
 layout: opencs
-title: Red Riding Hood Game 
-permalink: /gamify/redridinghood
+title: Red Riding Hood Level 4 - Shooting Minigame
+permalink: /gamify/redridinghood4
 ---
 
 <div id="gameContainer">
@@ -10,16 +10,13 @@ permalink: /gamify/redridinghood
 </div>
 
 <script type="module">
-    // Red Riding Hood Game assets locations
+    // Red Riding Hood Level 4 assets locations
     import Core from "{{site.baseurl}}/assets/js/GameEnginev1/essentials/Game.js";
     import GameControl from "{{site.baseurl}}/assets/js/GameEnginev1/essentials/GameControl.js";
-    import GameLevelRedRidingHood1 from "{{site.baseurl}}/assets/js/GameEnginev1/redridinghood/level1.js";
-    import GameLevelRedRidingHood2 from "{{site.baseurl}}/assets/js/GameEnginev1/redridinghood/level2.js";
-    import GameLevelRedRidingHood3 from "{{site.baseurl}}/assets/js/GameEnginev1/redridinghood/level3.js";
     import GameLevelRedRidingHood4 from "{{site.baseurl}}/assets/js/GameEnginev1/redridinghood/level4.js";
     import { pythonURI, javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js';
 
-    const gameLevelClasses = [GameLevelRedRidingHood1, GameLevelRedRidingHood2, GameLevelRedRidingHood3, GameLevelRedRidingHood4];
+    const gameLevelClasses = [GameLevelRedRidingHood4];
 
     // Web Server Environment data
     const environment = {
@@ -31,6 +28,6 @@ permalink: /gamify/redridinghood
         gameLevelClasses: gameLevelClasses
 
     }
-    // Launch Red Riding Hood Game using the central core and adventure GameControl
+    // Launch Red Riding Hood Level 4 using the central core and adventure GameControl
     Core.main(environment, GameControl);
 </script>
