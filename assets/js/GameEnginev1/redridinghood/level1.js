@@ -3,6 +3,14 @@ import GameEnvBackground from '../essentials/GameEnvBackground.js';
 import Player from '../essentials/Player.js';
 import FloorItem from '../FloorItem.js';
 
+// this level is about collecting cookies in the woods, with a title and score overlay,
+// and a congrats popup when all cookies are collected. It also has a button to transition to level 2.
+
+// the goal is for red riding hood to collect 5 cookies scattered around the woods.
+
+// this class: GameLevelRedRidingHood1 is designed to be used with the GameLevel system in GameControl,
+// which will handle creating the background and player based on the classes defined here. 
+
 class GameLevelRedRidingHood1 {
   constructor(gameEnv, game) {
     this.gameEnv = gameEnv;
@@ -11,6 +19,8 @@ class GameLevelRedRidingHood1 {
     let height = gameEnv.innerHeight;
     let path = gameEnv.path;
 
+    // the score initially starts at zero and increases with the player collecting cookies like tokens
+    // the continue flag allows the game loop to keep running until the level is completed
     this.continue = true;
     this.score = 0;
 
@@ -123,6 +133,9 @@ class GameLevelRedRidingHood1 {
     this.cookies.push(new FloorItem(width * 0.9, height * 0.8, cookieItem));
   }
 
+  // The update method checks for collisions between the player and cookies, updates the score, 
+// and shows a congrats popup when all cookies are collected. 
+// The destroy method cleans up all elements when the level ends.
   update() {
     // Get player from game objects (created by GameLevel system)
     const player = this.gameEnv.gameObjects.find(obj => obj instanceof Player);
