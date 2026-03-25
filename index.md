@@ -5,7 +5,7 @@ hide: true
 show_reading_time: false
 ---
 
-Hi! My name is [Your Full Name]
+Hi! Our team consists of <font color="blue"> Rashi, Anika, and Mateo! </font>
 
 ### Development Environment
 
@@ -46,6 +46,11 @@ Hi! My name is [Your Full Name]
     <a href="{{site.baseurl}}/gamify/water" style="text-decoration: none;">
         <div style="background-color: #b71dc5; color: white; padding: 10px 20px; border-radius: 5px; font-weight: bold;">
            Squid
+        </div>
+    </a>
+     <a href="{{site.baseurl}}/gamify/redridinghood" style="text-decoration: none;">
+        <div style="background-color: #db1515; color: white; padding: 10px 20px; border-radius: 5px; font-weight: bold;">
+           Red Riding Hood
         </div>
     </a>
 </div>
