@@ -115,7 +115,7 @@ class GameLevelRedRidingHood1 {
       { class: GameEnvBackground, data: image_data_wood },
       { class: Player, data: sprite_data_red }
     ];
-
+  // hi
     this.classes = list;
     this.objects = list;
     this.gameObjectClasses = list;
