@@ -1,16 +1,12 @@
 // level1.js - Red Riding Hood Level 1
 import GameEnvBackground from '../essentials/GameEnvBackground.js';
 import Player from '../essentials/Player.js';
-import FloorItem from '../FloorItem.js';
+import { Coin } from './Coin.js';
 
-// this level is about collecting cookies in the woods, with a title and score overlay,
-// and a congrats popup when all cookies are collected. It also has a button to transition to level 2.
-
-// the goal is for red riding hood to collect 5 cookies scattered around the woods.
-
-// this class: GameLevelRedRidingHood1 is designed to be used with the GameLevel system in GameControl,
-// which will handle creating the background and player based on the classes defined here. 
-
+/**
+ * Level 1: The Revelation of Little Red Riding Hood
+ * Goal: Use the smart Coin class to collect 5 cookies.
+ */
 class GameLevelRedRidingHood1 {
   constructor(gameEnv, game) {
     this.gameEnv = gameEnv;
@@ -19,10 +15,7 @@ class GameLevelRedRidingHood1 {
     let height = gameEnv.innerHeight;
     let path = gameEnv.path;
 
-    // the score initially starts at zero and increases with the player collecting cookies like tokens
-    // the continue flag allows the game loop to keep running until the level is completed
     this.continue = true;
-    this.score = 0;
 
     // --- HTML TITLE OVERLAY ---
     this.titleElement = document.createElement('div');
@@ -80,25 +73,19 @@ class GameLevelRedRidingHood1 {
     const self = this;
     this.successElement.querySelector('#nextLevelBtn').addEventListener('click', function(e) {
         e.stopPropagation();
-        console.log("BUTTON CLICKED");
-
-        // Walk up the chain to find the real GameControl
         const engine = self.gameEnv.gameControl || self.gameEnv.game?.gameControl || self.gameControl;
-        console.log("engine:", engine);
-
         if (engine && typeof engine.transitionToLevel === 'function') {
-            engine.currentLevelIndex = 1;
-            engine.handleLevelEnd = function() {};
+            engine.currentLevelIndex = 1; // Transitions to Level 2
             engine.transitionToLevel();
-        } else {
-            console.error("ENGINE NOT FOUND or transitionToLevel missing. engine =", engine);
         }
     });
 
     // --- BACKGROUND AND PLAYER ---
     const image_data_wood = { name: 'woods', src: path + "/images/gamify/ridinghood/woods.png", pixels: { height: 580, width: 1038 } };
+    
+    // CRITICAL: id must be 'player' for Coin.js to detect collision
     const sprite_data_red = {
-      id: 'Red Riding Hood',
+      id: 'player', 
       src: path + "/images/gamify/ridinghood/red.png",
       SCALE_FACTOR: 5, STEP_FACTOR: 1000, ANIMATION_RATE: 50,
       INIT_POSITION: { x: 0, y: height - (height / 5) },
@@ -111,71 +98,59 @@ class GameLevelRedRidingHood1 {
       keypress: { up: 87, left: 65, down: 83, right: 68 }
     };
 
-    const list = [
+    this.classes = [
       { class: GameEnvBackground, data: image_data_wood },
       { class: Player, data: sprite_data_red }
     ];
-  // hi
-    this.classes = list;
-    this.objects = list;
-    this.gameObjectClasses = list;
-    this.levels = list;
 
-    // Note: Objects are created by GameLevel system from this.classes
-    // Do not manually create this.background and this.player here
-
+    // --- SPAWN SMART COOKIES ---
     this.cookies = [];
-    const cookieItem = { name: 'Cookie', image: path + '/images/gamify/ridinghood/cookie.png' };
-    this.cookies.push(new FloorItem(width * 0.1, height * 0.8, cookieItem));
-    this.cookies.push(new FloorItem(width * 0.3, height * 0.75, cookieItem));
-    this.cookies.push(new FloorItem(width * 0.5, height * 0.8, cookieItem));
-    this.cookies.push(new FloorItem(width * 0.7, height * 0.75, cookieItem));
-    this.cookies.push(new FloorItem(width * 0.9, height * 0.8, cookieItem));
+    const cookiePositions = [
+        { x: 0.1, y: 0.8 },
+        { x: 0.3, y: 0.75 },
+        { x: 0.5, y: 0.8 },
+        { x: 0.7, y: 0.75 },
+        { x: 0.9, y: 0.8 }
+    ];
+
+    cookiePositions.forEach((pos, index) => {
+        const cookie = new Coin({
+            id: `cookie-${index}`,
+            INIT_POSITION: pos,
+            color: '#D2691E', // Chocolate Brown
+            value: 1,
+            zIndex: 10
+        }, this.gameEnv);
+        
+        this.cookies.push(cookie);
+        this.gameEnv.gameObjects.push(cookie); 
+    });
   }
 
-  // The update method checks for collisions between the player and cookies, updates the score, 
-// and shows a congrats popup when all cookies are collected. 
-// The destroy method cleans up all elements when the level ends.
+  /**
+   * Update checks the global score (stats) updated by Coin.js
+   */
   update() {
-    // Get player from game objects (created by GameLevel system)
-    const player = this.gameEnv.gameObjects.find(obj => obj instanceof Player);
-    if (player) {
-      for (let i = this.cookies.length - 1; i >= 0; i--) {
-        if (this.checkCollision(player, this.cookies[i])) {
-          this.cookies[i].element.remove();
-          this.cookies.splice(i, 1);
-          this.score++;
-          if (this.scoreElement) {
-            this.scoreElement.innerHTML = "Cookies Collected: " + this.score;
-          }
-          if (this.score === 5) {
-            this.successElement.style.display = 'block';
-          }
-        }
-      }
+    // Coin.js handles collisions automatically. We just check the result!
+    const currentScore = this.gameEnv.stats?.coinsCollected || 0;
+    
+    if (this.scoreElement) {
+        this.scoreElement.innerHTML = "Cookies Collected: " + currentScore;
+    }
+
+    if (currentScore >= 5) {
+        this.successElement.style.display = 'block';
     }
   }
 
-  checkCollision(player, cookie) {
-    if (!player || !cookie) return false;
-    return !( (player.position.x + player.width) < cookie.x || 
-               player.position.x > (cookie.x + 50) || 
-              (player.position.y + player.height) < cookie.y || 
-               player.position.y > (cookie.y + 50));
-  }
+  draw() {}
 
-  draw() {
-    // GameLevel system handles drawing of background and player
-    // Only draw cookies here if needed
-  }
+  resize() {}
 
-  resize() {
-    // GameLevel system handles resizing of background and player
-  }
-
+  /**
+   * Cleanup level-specific HTML elements
+   */
   destroy() {
-    // GameLevel system handles destroying background and player
-    this.cookies.forEach(c => { if(c.element) c.element.remove(); });
     if (this.titleElement && this.titleElement.parentNode) this.titleElement.remove();
     if (this.scoreElement && this.scoreElement.parentNode) this.scoreElement.remove();
     if (this.successElement && this.successElement.parentNode) this.successElement.remove();
