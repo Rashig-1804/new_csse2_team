@@ -13,10 +13,10 @@ permalink: /gamify/redridinghood
     // Red Riding Hood Game assets locations
     import Core from "{{site.baseurl}}/assets/js/GameEnginev1/essentials/Game.js";
     import GameControl from "{{site.baseurl}}/assets/js/GameEnginev1/essentials/GameControl.js";
-    import GameLevelRedRidingHood1 from "{{site.baseurl}}/assets/js/GameEnginev1/redridinghood/level1.js";
-    import GameLevelRedRidingHood2 from "{{site.baseurl}}/assets/js/GameEnginev1/redridinghood/level2.js";
-    import GameLevelRedRidingHood3 from "{{site.baseurl}}/assets/js/GameEnginev1/redridinghood/level3.js";
-    import GameLevelRedRidingHood4 from "{{site.baseurl}}/assets/js/GameEnginev1/redridinghood/level4.js";
+    import GameLevelRedRidingHood1 from "{{site.baseurl}}/assets/js/GameEnginev1.1/redridinghood/level1.js";
+    import GameLevelRedRidingHood2 from "{{site.baseurl}}/assets/js/GameEnginev1.1/redridinghood/level2.js";
+    import GameLevelRedRidingHood3 from "{{site.baseurl}}/assets/js/GameEnginev1.1/redridinghood/level3.js";
+    import GameLevelRedRidingHood4 from "{{site.baseurl}}/assets/js/GameEnginev1.1/redridinghood/level4.js";
     import { pythonURI, javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js';
 
     const gameLevelClasses = [GameLevelRedRidingHood1, GameLevelRedRidingHood2, GameLevelRedRidingHood3, GameLevelRedRidingHood4];
