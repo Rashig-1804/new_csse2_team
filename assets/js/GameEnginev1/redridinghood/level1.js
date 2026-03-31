@@ -2,6 +2,7 @@
 import GameEnvBackground from '../essentials/GameEnvBackground.js';
 import Player from '../essentials/Player.js';
 import { Coin } from './Coin.js'; 
+import Leaderboard from './Leaderboard.js';
 
 /**
  * Level 1: The Revelation of Little Red Riding Hood
@@ -13,6 +14,7 @@ class GameLevelRedRidingHood1 {
     this.gameControl = game;
     let height = gameEnv.innerHeight;
     let path = gameEnv.path;
+
 
     this.continue = true;
 
@@ -99,7 +101,8 @@ class GameLevelRedRidingHood1 {
         this.gameEnv.gameObjects.push(cookie); 
     });
   }
-
+  
+ 
   /**
    * Update checks the Global Bank (gameEnv.stats)
    */
@@ -116,6 +119,8 @@ class GameLevelRedRidingHood1 {
     if (currentScore >= 5) {
         this.successElement.style.display = 'block';
     }
+
+
   }
 
   draw() {}
