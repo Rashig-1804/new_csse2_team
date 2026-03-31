@@ -25,16 +25,16 @@ class GameLevelRedRidingHood3 {
         this.background = new GameEnvBackground(image_data_forest, gameEnv);
 
         // Player data - using ShooterPlayer
-        const sprite_src_red = path + "/images/gamify/chillguy.png";
+        const sprite_src_red = path + "/images/gamify/Finalred.png";
         const sprite_data_red = {
             id: 'RedRidingHood',
             greeting: "Red Riding Hood - Press Q to shoot!",
-            src: path + "/images/gamify/lrrh-lvl3-gg.png",
+            src: path + "/images/gamify/Finalred.png",
             SCALE_FACTOR: 6,
             STEP_FACTOR: 800,
             ANIMATION_RATE: 50,
             INIT_POSITION: { x: width / 2 - 50, y: height - 100 },
-            pixels: { height: 384, width: 512 },
+            pixels: { height: 144, width: 192 },
             orientation: { rows: 3, columns: 4 },
             down: { row: 0, start: 0, columns: 3 },
             left: { row: 2, start: 0, columns: 3 },
