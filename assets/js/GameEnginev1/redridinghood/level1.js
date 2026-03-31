@@ -1,7 +1,7 @@
 // level1.js - Red Riding Hood Level 1
 import GameEnvBackground from '../essentials/GameEnvBackground.js';
 import Player from '../essentials/Player.js';
-import { Coin } from './Coin.js';
+import { Coin } from './Coin.js'; 
 
 /**
  * Level 1: The Revelation of Little Red Riding Hood
@@ -11,69 +11,42 @@ class GameLevelRedRidingHood1 {
   constructor(gameEnv, game) {
     this.gameEnv = gameEnv;
     this.gameControl = game;
-    let width = gameEnv.innerWidth;
     let height = gameEnv.innerHeight;
     let path = gameEnv.path;
 
     this.continue = true;
 
+    // --- RESET THE BANK ---
+    // This ensures every time you start Level 1, you start at 0
+    this.gameEnv.stats = { coinsCollected: 0 };
+
     // --- HTML TITLE OVERLAY ---
     this.titleElement = document.createElement('div');
-    this.titleElement.style.position = 'absolute';
-    this.titleElement.style.top = '60px'; 
-    this.titleElement.style.width = '100%';
-    this.titleElement.style.textAlign = 'center';
-    this.titleElement.style.color = 'red'; 
-    this.titleElement.style.fontSize = '40px';
-    this.titleElement.style.fontWeight = '900';
-    this.titleElement.style.fontFamily = '"Courier New", Courier, monospace';
-    this.titleElement.style.textShadow = '2px 2px 4px black, 0 0 10px #ff0000';
-    this.titleElement.style.zIndex = '9999';
+    this.titleElement.style = "position:absolute; top:60px; width:100%; text-align:center; color:red; font-size:40px; font-weight:900; font-family:monospace; z-index:9999; text-shadow: 2px 2px black;";
     this.titleElement.innerHTML = "The Revelation of Little Red Riding Hood";
     document.body.appendChild(this.titleElement);
 
     // --- HTML SCORE OVERLAY ---
     this.scoreElement = document.createElement('div');
-    this.scoreElement.style.position = 'absolute';
-    this.scoreElement.style.bottom = '20px';
-    this.scoreElement.style.left = '20px';
-    this.scoreElement.style.color = 'red';
-    this.scoreElement.style.fontSize = '28px';
-    this.scoreElement.style.fontWeight = 'bold';
-    this.scoreElement.style.fontFamily = '"Courier New", Courier, monospace';
-    this.scoreElement.style.textShadow = '1px 1px 2px black, 0 0 5px #ff0000';
-    this.scoreElement.style.zIndex = '9999'; 
+    this.scoreElement.style = "position:absolute; bottom:20px; left:20px; color:red; font-size:28px; font-weight:bold; font-family:monospace; z-index:9999; text-shadow: 1px 1px black;";
     this.scoreElement.innerHTML = "Cookies Collected: 0";
     document.body.appendChild(this.scoreElement);
 
     // --- CONGRATS OVERLAY ---
     this.successElement = document.createElement('div');
-    this.successElement.style.position = 'fixed';
-    this.successElement.style.top = '50%';
-    this.successElement.style.left = '50%';
-    this.successElement.style.transform = 'translate(-50%, -50%)';
-    this.successElement.style.backgroundColor = 'rgba(0, 0, 0, 0.92)';
-    this.successElement.style.padding = '50px';
-    this.successElement.style.border = '4px solid red';
-    this.successElement.style.borderRadius = '15px';
-    this.successElement.style.textAlign = 'center';
-    this.successElement.style.display = 'none';
-    this.successElement.style.zIndex = '999999';
-    this.successElement.style.pointerEvents = 'auto';
+    this.successElement.style = "position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(0,0,0,0.95); padding:50px; border:4px solid red; border-radius:15px; text-align:center; display:none; z-index:999999;";
     this.successElement.innerHTML = `
-        <h1 style="color: red; font-size: 60px; text-shadow: 3px 3px black; font-family: 'Courier New', monospace; margin-bottom: 20px;">CONGRATS!</h1>
-        <p style="color: white; font-size: 26px; font-family: 'Courier New', monospace; margin-bottom: 30px;">You collected all 5 cookies!</p>
-        <button id="nextLevelBtn" style="padding: 20px 40px; font-size: 24px; cursor: pointer; background: red; color: white; border: 3px solid white; font-weight: bold; border-radius: 8px; font-family: 'Courier New', monospace; pointer-events: auto; position: relative; z-index: 999999;">
+        <h1 style="color: red; font-size: 60px; margin-bottom: 20px;">CONGRATS!</h1>
+        <p style="color: white; font-size: 26px; margin-bottom: 30px;">You collected all 5 cookies!</p>
+        <button id="nextLevelBtn" style="padding: 20px 40px; font-size: 24px; cursor: pointer; background: red; color: white; border: none; font-weight: bold; border-radius: 8px;">
             MOVE TO LEVEL 2 →
         </button>
     `;
     document.body.appendChild(this.successElement);
 
     // --- BUTTON LOGIC ---
-    const self = this;
-    this.successElement.querySelector('#nextLevelBtn').addEventListener('click', function(e) {
-        e.stopPropagation();
-        const engine = self.gameEnv.gameControl || self.gameEnv.game?.gameControl || self.gameControl;
+    this.successElement.querySelector('#nextLevelBtn').addEventListener('click', () => {
+        const engine = this.gameEnv.gameControl || this.gameEnv.game?.gameControl || this.gameControl;
         if (engine && typeof engine.transitionToLevel === 'function') {
             engine.currentLevelIndex = 1; // Transitions to Level 2
             engine.transitionToLevel();
@@ -83,7 +56,6 @@ class GameLevelRedRidingHood1 {
     // --- BACKGROUND AND PLAYER ---
     const image_data_wood = { name: 'woods', src: path + "/images/gamify/ridinghood/woods.png", pixels: { height: 580, width: 1038 } };
     
-    // CRITICAL: id must be 'player' for Coin.js to detect collision
     const sprite_data_red = {
       id: 'player', 
       src: path + "/images/gamify/ridinghood/red.png",
@@ -104,6 +76,7 @@ class GameLevelRedRidingHood1 {
     ];
 
     // --- SPAWN SMART COOKIES ---
+    // These look like FloorItems but act like Coins
     this.cookies = [];
     const cookiePositions = [
         { x: 0.1, y: 0.8 },
@@ -117,7 +90,7 @@ class GameLevelRedRidingHood1 {
         const cookie = new Coin({
             id: `cookie-${index}`,
             INIT_POSITION: pos,
-            color: '#D2691E', // Chocolate Brown
+            SCALE_FACTOR: 12, 
             value: 1,
             zIndex: 10
         }, this.gameEnv);
@@ -128,32 +101,35 @@ class GameLevelRedRidingHood1 {
   }
 
   /**
-   * Update checks the global score (stats) updated by Coin.js
+   * Update checks the Global Bank (gameEnv.stats)
    */
   update() {
-    // Coin.js handles collisions automatically. We just check the result!
+    // 1. Get the current score from the Global Bank
     const currentScore = this.gameEnv.stats?.coinsCollected || 0;
     
+    // 2. Update the UI text
     if (this.scoreElement) {
         this.scoreElement.innerHTML = "Cookies Collected: " + currentScore;
     }
 
+    // 3. Check for Win State
     if (currentScore >= 5) {
         this.successElement.style.display = 'block';
     }
   }
 
   draw() {}
-
   resize() {}
 
   /**
-   * Cleanup level-specific HTML elements
+   * Cleanup
    */
   destroy() {
     if (this.titleElement && this.titleElement.parentNode) this.titleElement.remove();
     if (this.scoreElement && this.scoreElement.parentNode) this.scoreElement.remove();
     if (this.successElement && this.successElement.parentNode) this.successElement.remove();
+    
+    // Note: The Coin objects destroy their own <img> tags automatically!
   }
 }
 
