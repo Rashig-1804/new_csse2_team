@@ -1,8 +1,9 @@
 // level1.js - Red Riding Hood Level 1
 import GameEnvBackground from '../essentials/GameEnvBackground.js';
 import Player from '../essentials/Player.js';
-import { Coin } from './Coin.js'; 
+import { Coin } from './Coin.js';
 import Leaderboard from './Leaderboard.js';
+
 
 /**
  * Level 1: The Revelation of Little Red Riding Hood
@@ -15,17 +16,21 @@ class GameLevelRedRidingHood1 {
     let height = gameEnv.innerHeight;
     let path = gameEnv.path;
 
+
     this.leaderboard = new Leaderboard(this.gameControl, {
         gameName: 'RedRidingHood',
-        initiallyHidden: false 
+        initiallyHidden: false
     });
+
 
     this.continue = true;
     this.scoreSubmitted = false;
 
+
     // --- RESET THE BANK ---
     // This ensures every time you start Level 1, you start at 0
     this.gameEnv.stats = { coinsCollected: 0 };
+
 
     // --- HTML TITLE OVERLAY ---
     this.titleElement = document.createElement('div');
@@ -33,11 +38,13 @@ class GameLevelRedRidingHood1 {
     this.titleElement.innerHTML = "The Revelation of Little Red Riding Hood";
     document.body.appendChild(this.titleElement);
 
+
     // --- HTML SCORE OVERLAY ---
     this.scoreElement = document.createElement('div');
     this.scoreElement.style = "position:absolute; bottom:20px; left:20px; color:red; font-size:28px; font-weight:bold; font-family:monospace; z-index:9999; text-shadow: 1px 1px black;";
     this.scoreElement.innerHTML = "Cookies Collected: 0";
     document.body.appendChild(this.scoreElement);
+
 
     // --- CONGRATS OVERLAY ---
     this.successElement = document.createElement('div');
@@ -51,6 +58,7 @@ class GameLevelRedRidingHood1 {
     `;
     document.body.appendChild(this.successElement);
 
+
     // --- BUTTON LOGIC ---
     this.successElement.querySelector('#nextLevelBtn').addEventListener('click', () => {
         const engine = this.gameEnv.gameControl || this.gameEnv.game?.gameControl || this.gameControl;
@@ -60,11 +68,12 @@ class GameLevelRedRidingHood1 {
         }
     });
 
+
     // --- BACKGROUND AND PLAYER ---
     const image_data_wood = { name: 'woods', src: path + "/images/gamify/ridinghood/woods.png", pixels: { height: 580, width: 1038 } };
-    
+   
     const sprite_data_red = {
-      id: 'player', 
+      id: 'player',
       src: path + "/images/gamify/ridinghood/red.png",
       SCALE_FACTOR: 5, STEP_FACTOR: 1000, ANIMATION_RATE: 50,
       INIT_POSITION: { x: 0, y: height - (height / 5) },
@@ -77,10 +86,12 @@ class GameLevelRedRidingHood1 {
       keypress: { up: 87, left: 65, down: 83, right: 68 }
     };
 
+
     this.classes = [
       { class: GameEnvBackground, data: image_data_wood },
       { class: Player, data: sprite_data_red }
     ];
+
 
     // --- SPAWN SMART COOKIES ---
     // These look like FloorItems but act like Coins
@@ -93,20 +104,21 @@ class GameLevelRedRidingHood1 {
         { x: 0.9, y: 0.8 }
     ];
 
+
     cookiePositions.forEach((pos, index) => {
         const cookie = new Coin({
             id: `cookie-${index}`,
             INIT_POSITION: pos,
-            SCALE_FACTOR: 12, 
+            SCALE_FACTOR: 12,
             value: 1,
             zIndex: 10
         }, this.gameEnv);
-        
+       
         this.cookies.push(cookie);
-        this.gameEnv.gameObjects.push(cookie); 
+        this.gameEnv.gameObjects.push(cookie);
     });
   }
-  
+ 
  
   /**
    * Update checks the Global Bank (gameEnv.stats)
@@ -114,21 +126,23 @@ class GameLevelRedRidingHood1 {
   update() {
     // 1. Get the current score from the Global Bank
     const currentScore = this.gameEnv.stats?.coinsCollected || 0;
-    
+   
     const lbScoreHtml = document.getElementById('leaderboard-current-score');
     if (lbScoreHtml) {
       lbScoreHtml.textContent = `Cookies: ${currentScore}`;
 }
-    
+   
     // 2. Update the UI text
     if (this.scoreElement) {
         this.scoreElement.innerHTML = "Cookies Collected: " + currentScore;
     }
 
+
     // 3. Check for Win State
     if (currentScore >= 5 && !this.scoreSubmitted) {
         this.scoreSubmitted = true; // Prevents loop
         this.successElement.style.display = 'block';
+
 
         if (this.leaderboard) {
             // API Chaining pattern from Leaderboard v1.1
@@ -139,10 +153,14 @@ class GameLevelRedRidingHood1 {
     }
 
 
+
+
   }
+
 
   draw() {}
   resize() {}
+
 
   /**
    * Cleanup
@@ -151,13 +169,16 @@ class GameLevelRedRidingHood1 {
     if (this.titleElement && this.titleElement.parentNode) this.titleElement.remove();
     if (this.scoreElement && this.scoreElement.parentNode) this.scoreElement.remove();
     if (this.successElement && this.successElement.parentNode) this.successElement.remove();
-    
+   
     // Note: The Coin objects destroy their own <img> tags automatically!
     if (this.leaderboard && typeof this.leaderboard.destroy === 'function') {
         this.leaderboard.destroy();
     }
   }
 
+
 }
 
+
 export default GameLevelRedRidingHood1;
+
