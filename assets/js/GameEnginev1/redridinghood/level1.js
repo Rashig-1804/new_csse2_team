@@ -15,8 +15,13 @@ class GameLevelRedRidingHood1 {
     let height = gameEnv.innerHeight;
     let path = gameEnv.path;
 
+    this.leaderboard = new Leaderboard(this.gameControl, {
+        gameName: 'RedRidingHood',
+        initiallyHidden: false 
+    });
 
     this.continue = true;
+    this.scoreSubmitted = false;
 
     // --- RESET THE BANK ---
     // This ensures every time you start Level 1, you start at 0
@@ -110,14 +115,27 @@ class GameLevelRedRidingHood1 {
     // 1. Get the current score from the Global Bank
     const currentScore = this.gameEnv.stats?.coinsCollected || 0;
     
+    const lbScoreHtml = document.getElementById('leaderboard-current-score');
+    if (lbScoreHtml) {
+      lbScoreHtml.textContent = `Cookies: ${currentScore}`;
+}
+    
     // 2. Update the UI text
     if (this.scoreElement) {
         this.scoreElement.innerHTML = "Cookies Collected: " + currentScore;
     }
 
     // 3. Check for Win State
-    if (currentScore >= 5) {
+    if (currentScore >= 5 && !this.scoreSubmitted) {
+        this.scoreSubmitted = true; // Prevents loop
         this.successElement.style.display = 'block';
+
+        if (this.leaderboard) {
+            // API Chaining pattern from Leaderboard v1.1
+            this.leaderboard.submitScore("Red", currentScore, "RedRidingHood")
+                .then(entry => console.log('Score saved successfully:', entry))
+                .catch(err => console.error('Save failed (Expected if backend is down):', err));
+        }
     }
 
 
@@ -135,7 +153,11 @@ class GameLevelRedRidingHood1 {
     if (this.successElement && this.successElement.parentNode) this.successElement.remove();
     
     // Note: The Coin objects destroy their own <img> tags automatically!
+    if (this.leaderboard && typeof this.leaderboard.destroy === 'function') {
+        this.leaderboard.destroy();
+    }
   }
+
 }
 
 export default GameLevelRedRidingHood1;
