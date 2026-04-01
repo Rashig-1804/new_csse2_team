@@ -136,9 +136,11 @@ class GameLevelRedRidingHood1 {
 
     if (currentScore >= 5 && !this.scoreSubmitted) {
         this.scoreSubmitted = true; 
-        
         const endTime = Date.now();
         const timeTaken = ((endTime - this.startTime) / 1000).toFixed(2);
+        
+        // This flag tracks if we have already tried to save
+        let saveAttempted = false;
 
         this.successElement.innerHTML = `
             <h1 style="color: red; font-size: 40px; margin-bottom: 10px;">VICTORY!</h1>
@@ -158,45 +160,49 @@ class GameLevelRedRidingHood1 {
         const inputArea = this.successElement.querySelector('#inputArea');
 
         finalBtn.addEventListener('click', () => {
-            // 1. If we are already in "Next Level" mode, just go.
-            if (finalBtn.innerHTML.includes("LEVEL 2")) {
+            // Check if we already tried to save. If yes, JUST MOVE.
+            if (saveAttempted) {
                 const engine = this.gameEnv.gameControl || this.gameEnv.game?.gameControl || this.gameControl;
                 engine.currentLevelIndex = 1;
                 engine.transitionToLevel();
-                return;
+                return; // Exit function immediately
             }
 
-            // 2. Otherwise, handle the Submission
+            // If we haven't attempted a save yet:
             const name = document.getElementById('playerName').value.trim() || "Anonymous";
             
-            // DISABLE BUTTON IMMEDIATELY (Prevents Duplicates!)
+            // Disable everything so they can't click again
             finalBtn.disabled = true;
             finalBtn.innerHTML = "SAVING...";
             finalBtn.style.opacity = "0.5";
+            saveAttempted = true; // Set the flag so the next click is a "Move"
 
             if (this.leaderboard) {
                 this.leaderboard.submitScore(name, parseFloat(timeTaken), "RedRidingHood")
                     .then(() => {
-                        // SUCCESS: Switch to Level 2 Button
                         inputArea.style.display = 'none';
                         finalBtn.disabled = false;
                         finalBtn.style.opacity = "1";
-                        finalBtn.style.background = "#28a745"; // Green
+                        finalBtn.style.background = "#28a745"; // Green for success
                         finalBtn.innerHTML = "GO TO LEVEL 2 →";
                     })
                     .catch(err => {
-                        console.error("Save failed, but letting player continue:", err);
-                        // FAIL: Let them skip the save so they aren't stuck
+                        console.warn("Save failed, enabling skip:", err);
                         inputArea.style.display = 'none';
                         finalBtn.disabled = false;
                         finalBtn.style.opacity = "1";
+                        finalBtn.style.background = "#ffc107"; // Orange for "Partial Success"
                         finalBtn.innerHTML = "CONTINUE (Skip Save) →";
                     });
+            } else {
+                // If leaderboard doesn't exist at all
+                finalBtn.disabled = false;
+                finalBtn.innerHTML = "CONTINUE →";
             }
         });
     }
   }
-
+  
   draw() {}
   resize() {}
 
