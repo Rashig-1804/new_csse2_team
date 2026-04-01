@@ -23,6 +23,7 @@ class GameLevelRedRidingHood1 {
 
     this.continue = true;
     this.scoreSubmitted = false;
+    this.startTime = Date.now(); // <--- ADD THIS LINE HERE
 
     // --- RESET THE BANK ---
     this.gameEnv.stats = { coinsCollected: 0 };
@@ -128,64 +129,56 @@ class GameLevelRedRidingHood1 {
    */
   update() {
     const currentScore = this.gameEnv.stats?.coinsCollected || 0;
-   
-    const lbScoreHtml = document.getElementById('leaderboard-current-score');
-    if (lbScoreHtml) {
-      lbScoreHtml.textContent = `Cookies: ${currentScore}`;
-    }
-   
+    
+    // Update the UI text
     if (this.scoreElement) {
         this.scoreElement.innerHTML = "Cookies Collected: " + currentScore;
     }
 
+    // TRIGGER WIN STATE
     if (currentScore >= 5 && !this.scoreSubmitted) {
-        this.scoreSubmitted = true; 
+        this.scoreSubmitted = true; // Prevents this from running 60 times a second
+        
+        const endTime = Date.now();
+        const timeTaken = ((endTime - this.startTime) / 1000).toFixed(2);
+
+        // 1. Update the Success Box with the Input Form
+        this.successElement.innerHTML = `
+            <h1 style="color: red; font-size: 40px; margin-bottom: 10px;">VICTORY!</h1>
+            <p style="color: white; font-size: 22px; margin-bottom: 20px;">You collected all cookies in ${timeTaken}s!</p>
+            <input type="text" id="playerName" placeholder="Your Name" 
+                   style="padding: 12px; width: 250px; font-size: 18px; border-radius: 8px; border: none; text-align: center;">
+            <br><br>
+            <button id="submitAndMove" style="padding: 15px 30px; font-size: 20px; cursor: pointer; background: red; color: white; border: none; font-weight: bold; border-radius: 8px;">
+                SUBMIT SCORE & CONTINUE
+            </button>
+        `;
         this.successElement.style.display = 'block';
 
-        if (this.leaderboard) {
-            this.leaderboard.submitScore("Red", currentScore, "RedRidingHood")
-                .then(entry => console.log('Score saved successfully:', entry))
-                .catch(err => console.error('Save failed (Expected if backend is down):', err));
-        }
+        // 2. Add the Event Listener for the Submit Button
+        this.successElement.querySelector('#submitAndMove').addEventListener('click', () => {
+            const name = document.getElementById('playerName').value.trim() || "Anonymous";
+            
+            if (this.leaderboard) {
+                // Submit the REAL name and the TIME as the score
+                this.leaderboard.submitScore(name, parseFloat(timeTaken), "RedRidingHood")
+                    .then(() => {
+                        console.log("Score saved for:", name);
+                        // Transition to Level 2
+                        const engine = this.gameEnv.gameControl || this.gameEnv.game?.gameControl || this.gameControl;
+                        if (engine && typeof engine.transitionToLevel === 'function') {
+                            engine.currentLevelIndex = 1;
+                            engine.transitionToLevel();
+                        }
+                    })
+                    .catch(err => {
+                        console.error("Submission error:", err);
+                        // Fallback to move level even if backend is down
+                        this.gameControl.transitionToLevel(); 
+                    });
+            }
+        });
     }
-
-    if (currentScore >= 5 && !this.scoreSubmitted) {
-    this.scoreSubmitted = true;
-    const endTime = Date.now();
-    const timeTaken = ((endTime - this.startTime) / 1000).toFixed(2);
-
-    // Show the success box but add an input field to it
-    this.successElement.innerHTML = `
-        <h1 style="color: red; font-size: 40px;">VICTORY!</h1>
-        <p style="color: white; font-size: 20px;">Time: ${timeTaken}s</p>
-        <input type="text" id="playerName" placeholder="Enter Your Name" 
-               style="padding: 10px; width: 80%; margin-bottom: 20px; border-radius: 5px; border: none;">
-        <br>
-        <button id="submitAndMove" style="padding: 15px 30px; font-size: 20px; cursor: pointer; background: red; color: white; border: none; font-weight: bold; border-radius: 8px;">
-            SUBMIT & NEXT LEVEL
-        </button>
-    `;
-    this.successElement.style.display = 'block';
-
-    // Add listener for the new button
-    this.successElement.querySelector('#submitAndMove').addEventListener('click', () => {
-        const name = document.getElementById('playerName').value || "Anonymous";
-        
-        // Submit the custom name and the time
-        if (this.leaderboard) {
-            this.leaderboard.submitScore(name, timeTaken, "RedRidingHood")
-                .then(() => {
-                    // Move to next level after saving
-                    const engine = this.gameEnv.gameControl || this.gameEnv.game?.gameControl;
-                    if (engine) {
-                        engine.currentLevelIndex = 1;
-                        engine.transitionToLevel();
-                    }
-                });
-        }
-    });
-    }
-
   }
 
   draw() {}
