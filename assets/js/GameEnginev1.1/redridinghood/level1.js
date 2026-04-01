@@ -149,6 +149,43 @@ class GameLevelRedRidingHood1 {
         }
     }
 
+    if (currentScore >= 5 && !this.scoreSubmitted) {
+    this.scoreSubmitted = true;
+    const endTime = Date.now();
+    const timeTaken = ((endTime - this.startTime) / 1000).toFixed(2);
+
+    // Show the success box but add an input field to it
+    this.successElement.innerHTML = `
+        <h1 style="color: red; font-size: 40px;">VICTORY!</h1>
+        <p style="color: white; font-size: 20px;">Time: ${timeTaken}s</p>
+        <input type="text" id="playerName" placeholder="Enter Your Name" 
+               style="padding: 10px; width: 80%; margin-bottom: 20px; border-radius: 5px; border: none;">
+        <br>
+        <button id="submitAndMove" style="padding: 15px 30px; font-size: 20px; cursor: pointer; background: red; color: white; border: none; font-weight: bold; border-radius: 8px;">
+            SUBMIT & NEXT LEVEL
+        </button>
+    `;
+    this.successElement.style.display = 'block';
+
+    // Add listener for the new button
+    this.successElement.querySelector('#submitAndMove').addEventListener('click', () => {
+        const name = document.getElementById('playerName').value || "Anonymous";
+        
+        // Submit the custom name and the time
+        if (this.leaderboard) {
+            this.leaderboard.submitScore(name, timeTaken, "RedRidingHood")
+                .then(() => {
+                    // Move to next level after saving
+                    const engine = this.gameEnv.gameControl || this.gameEnv.game?.gameControl;
+                    if (engine) {
+                        engine.currentLevelIndex = 1;
+                        engine.transitionToLevel();
+                    }
+                });
+        }
+    });
+    }
+
   }
 
   draw() {}

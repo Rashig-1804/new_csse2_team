@@ -839,8 +839,16 @@ export default class Leaderboard {
         const preview = document.getElementById('leaderboard-preview');
 
         const filteredByGame = data.filter(event => {
-        const name = event.payload?.gameName || event.payload?.game || 'Unknown';
-        return name === this.gameName; 
+            const name = event.payload?.gameName || event.payload?.game || 'Unknown';
+            const user = event.payload?.user || event.payload?.username || 'Anonymous';
+            
+            // FILTER 1: Must be your game
+            const isMyGame = name === this.gameName;
+            // FILTER 2: Ignore the old "Red" or "Anonymous" spam entries
+            const isNotSpam = user !== "Red" && user !== "Anonymous" && user !== "";
+        
+            return isMyGame && isNotSpam;
+
         });
 
     // Change 'data' to 'filteredByGame' in the map function below
@@ -852,7 +860,7 @@ export default class Leaderboard {
                 gameName: event.payload?.gameName || event.payload?.game || 'Unknown',
                 timestamp: event.timestamp
             }))
-            .sort((a, b) => b.score - a.score);
+            .sort((a, b) => a.score - b.score);
 
         // Transform backend data to frontend format
         // Backend returns: { id, user (User object or null), algoName, payload, timestamp }
