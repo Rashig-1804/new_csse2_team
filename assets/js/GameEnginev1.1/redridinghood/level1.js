@@ -106,7 +106,7 @@ class GameLevelRedRidingHood1 {
         { x: 0.3, y: 0.75 },
         { x: 0.5, y: 0.8 },
         { x: 0.7, y: 0.75 },
-        { x: 0.9, y: 0.4 }
+        { x: 0.7, y: 0.4 }
     ];
 
     cookiePositions.forEach((pos, index) => {
