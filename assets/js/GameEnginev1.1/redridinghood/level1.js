@@ -134,7 +134,6 @@ class GameLevelRedRidingHood1 {
         this.scoreElement.innerHTML = "Cookies Collected: " + currentScore;
     }
 
-    // TRIGGER WIN STATE
     if (currentScore >= 5 && !this.scoreSubmitted) {
         this.scoreSubmitted = true; 
         
@@ -143,49 +142,55 @@ class GameLevelRedRidingHood1 {
 
         this.successElement.innerHTML = `
             <h1 style="color: red; font-size: 40px; margin-bottom: 10px;">VICTORY!</h1>
-            <p style="color: white; font-size: 22px; margin-bottom: 20px;">Fastest Cookies in the Woods: ${timeTaken}s</p>
-            <div id="inputSection">
-                <input type="text" id="playerName" placeholder="Enter Your Name" 
-                       style="padding: 12px; width: 250px; font-size: 18px; border-radius: 8px; border: none; text-align: center;">
+            <p style="color: white; font-size: 22px; margin-bottom: 20px;">Time: ${timeTaken}s</p>
+            <div id="inputArea">
+                <input type="text" id="playerName" placeholder="Enter Name" 
+                       style="padding: 10px; width: 200px; text-align: center; border-radius: 5px;">
                 <br><br>
             </div>
-            <button id="actionBtn" style="padding: 15px 30px; font-size: 20px; cursor: pointer; background: red; color: white; border: none; font-weight: bold; border-radius: 8px;">
+            <button id="finalBtn" style="padding: 15px 30px; font-size: 20px; cursor: pointer; background: red; color: white; border: none; font-weight: bold; border-radius: 8px;">
                 SUBMIT SCORE
             </button>
         `;
         this.successElement.style.display = 'block';
 
-        const actionBtn = this.successElement.querySelector('#actionBtn');
-        
-        actionBtn.addEventListener('click', () => {
-            // If the button says "CONTINUE", we just move levels
-            if (actionBtn.innerHTML.includes("CONTINUE")) {
+        const finalBtn = this.successElement.querySelector('#finalBtn');
+        const inputArea = this.successElement.querySelector('#inputArea');
+
+        finalBtn.addEventListener('click', () => {
+            // 1. If we are already in "Next Level" mode, just go.
+            if (finalBtn.innerHTML.includes("LEVEL 2")) {
                 const engine = this.gameEnv.gameControl || this.gameEnv.game?.gameControl || this.gameControl;
                 engine.currentLevelIndex = 1;
                 engine.transitionToLevel();
                 return;
             }
 
-            // Otherwise, we are in "SUBMIT" mode
+            // 2. Otherwise, handle the Submission
             const name = document.getElementById('playerName').value.trim() || "Anonymous";
-            actionBtn.innerHTML = "SAVING...";
-            actionBtn.style.opacity = "0.5";
-            actionBtn.disabled = true;
+            
+            // DISABLE BUTTON IMMEDIATELY (Prevents Duplicates!)
+            finalBtn.disabled = true;
+            finalBtn.innerHTML = "SAVING...";
+            finalBtn.style.opacity = "0.5";
 
             if (this.leaderboard) {
                 this.leaderboard.submitScore(name, parseFloat(timeTaken), "RedRidingHood")
                     .then(() => {
-                        // Success! Change the UI to allow moving forward
-                        document.getElementById('inputSection').style.display = 'none';
-                        actionBtn.disabled = false;
-                        actionBtn.style.opacity = "1";
-                        actionBtn.innerHTML = "CONTINUE TO LEVEL 2 →";
-                        actionBtn.style.background = "#28a745"; // Change to green for success
+                        // SUCCESS: Switch to Level 2 Button
+                        inputArea.style.display = 'none';
+                        finalBtn.disabled = false;
+                        finalBtn.style.opacity = "1";
+                        finalBtn.style.background = "#28a745"; // Green
+                        finalBtn.innerHTML = "GO TO LEVEL 2 →";
                     })
                     .catch(err => {
-                        console.error("Score Error:", err);
-                        actionBtn.disabled = false;
-                        actionBtn.innerHTML = "CONTINUE (Skip Save) →";
+                        console.error("Save failed, but letting player continue:", err);
+                        // FAIL: Let them skip the save so they aren't stuck
+                        inputArea.style.display = 'none';
+                        finalBtn.disabled = false;
+                        finalBtn.style.opacity = "1";
+                        finalBtn.innerHTML = "CONTINUE (Skip Save) →";
                     });
             }
         });
