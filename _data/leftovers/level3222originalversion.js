@@ -48,27 +48,19 @@ class GameLevelRedRidingHood3 {
         // Create shooter player
         this.player = new ShooterPlayer(sprite_data_red, gameEnv);
 
-          // Updated Wolf Enemy Data with wolffff.png
-       const wolfScale = 2;
-        const wolfPixels = { height: 395, width: 632 };
-        
+        // Create single enemy in upper middle
         const enemyData = {
             id: 'Wolf',
             greeting: "The Wolf!",
-            src: path + "/images/gamify/ridinghood/wolfff.png",
-            SCALE_FACTOR: wolfScale,
+            src: path + "/images/gamify/lrrh-lvl3-bigbadwolf.png",
+            SCALE_FACTOR: 2,
             STEP_FACTOR: 1000,
             ANIMATION_RATE: 50,
-            // Positioned in the bottom-left corner
-            INIT_POSITION: { x: 150, y: 400 }, 
-            pixels: wolfPixels,
+            INIT_POSITION: { x: width / 2 - 300, y: 50 }, // Upper middle
+            pixels: { height: 1640, width: 2360 },
             orientation: { rows: 1, columns: 1 },
             down: { row: 0, start: 0, columns: 1 },
-            // Force the hitbox to match the actual pixel rectangle scaled
-            collisionWidth: wolfPixels.width * wolfScale,
-            collisionHeight: wolfPixels.height * wolfScale,
-            hitbox: { widthPercentage: 1.0, heightPercentage: 1.0 },
-            hp: 5
+            hitbox: { widthPercentage: 0.8, heightPercentage: 0.8 }
         };
 
         this.enemy = new Enemy(enemyData, gameEnv);
@@ -178,7 +170,147 @@ class GameLevelRedRidingHood3 {
     }
 
 
-   showGrandmaVictory() {
+    showGrandmaVictory() {
+        // Display message and link to next level
+        const message = document.createElement('div');
+        message.style.position = 'absolute';
+        message.style.top = '30%';
+        message.style.left = '50%';
+        message.style.transform = 'translate(-50%, -50%)';
+        message.style.background = 'rgba(255,255,255,0.95)';
+        message.style.padding = '32px';
+        message.style.borderRadius = '16px';
+        message.style.fontSize = '1.5em';
+        message.style.textAlign = 'center';
+        message.style.zIndex = 1000;
+        message.innerHTML = `Good job my girl! These old wolfies have gone rampant this season.<br>Now you said you have some cookies?<br><br><a href='level4.html' style='font-size:1.2em;color:#b00;'>Go to Next Level</a>`;
+        document.body.appendChild(message);
+    }
+
+    resize() {
+        // GameLevel system handles resizing of background, player, and enemy
+    }
+
+    destroy() {
+        // GameLevel system handles destroying background, player, and enemy
+    }
+}
+
+//bonus lines of code for granny npc for nor now unused 
+
+ update() {
+        if (this.wolfDefeated) {
+            // Check for interaction if Grandma exists
+            if (this.grandmaSpawned && this.grandmaNPC) {
+                this.handleGrandmaInteraction();
+            }
+            return;
+        }
+
+        const bullets = this.gameEnv.gameObjects.filter(obj => obj.constructor.name === 'Bullet');
+        const enemies = this.gameEnv.gameObjects.filter(obj => obj instanceof Enemy);
+
+        if (enemies.length === 0) return;
+
+        // Access the first element (the wolf)
+        const enemy = enemies;
+        if (enemy.isDefeated) return;
+
+        bullets.forEach(bullet => {
+            if (bullet.checkCollision(enemy)) {
+                const hit = new HitMarker(bullet.x, bullet.y, this.gameEnv);
+                this.gameEnv.gameObjects.push(hit);
+                
+                enemy.takeDamage(1);
+                bullet.destroy();
+
+                if (enemy.hp <= 0 && !this.wolfDefeated) {
+                    this.wolfDefeated = true;
+                    
+                    const explosion = new Explosion(
+                        enemy.x + enemy.width / 2, 
+                        enemy.y + enemy.height / 2, 
+                        this.gameEnv
+                    );
+                    this.gameEnv.gameObjects.push(explosion);
+
+                    setTimeout(() => {
+                        enemy.destroy(); 
+                        this.spawnGrandma();
+                    }, 500);
+                }
+            }
+        });
+    }
+
+    /**
+     * Spawns Grandma as an NPC after the wolf is gone
+     */
+    spawnGrandma() {
+        let path = this.gameEnv.path;
+        const grandmaData = {
+            id: 'Grandma',
+            src: path + "/images/gamify/grandma.png", 
+            SCALE_FACTOR: 10,
+            pixels: { height: 256, width: 256 },
+            INIT_POSITION: { x: this.gameEnv.innerWidth * 0.15, y: this.gameEnv.innerHeight * 0.75 },
+            greeting: "Good job my girl! These old wolfies have gone rampant this season.",
+            dialogues: [
+                "Now you said you have some cookies?",
+                "I've been waiting quite a while in that dark belly!",
+                "Press E one more time to play again!"
+            ]
+        };
+
+        this.grandmaNPC = new Npc(grandmaData, this.gameEnv);
+        this.gameEnv.gameObjects.push(this.grandmaNPC);
+        this.grandmaSpawned = true;
+        
+        console.log("Grandma has appeared! Go talk to her.");
+    }
+
+    /**
+     * Handles the proximity and key press for Grandma
+     */
+    handleGrandmaInteraction() {
+        // Distance check between player and grandma
+        const dx = this.player.x - this.grandmaNPC.x;
+        const dy = this.player.y - this.grandmaNPC.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        // If close enough and player presses E (keycode 69)
+        if (distance < 150 && this.player.keys && (this.player.keys['e'] || this.player.keys['u'])) {
+            // If grandma has a dialogue system, it handles the cycle
+            if (typeof this.grandmaNPC.showReactionDialogue === 'function') {
+                this.grandmaNPC.showReactionDialogue();
+                
+                // If we reach the end of the conversation or a specific flag
+                // We show the final play again button
+                if (this.grandmaNPC.dialogueIndex >= this.grandmaNPC.dialogues.length - 1) {
+                    setTimeout(() => this.showPlayAgainUI(), 1000);
+                }
+            } else {
+                // Fallback if the Npc class isn't the complex version
+                this.showPlayAgainUI();
+            }
+            
+            // Clear the key so it doesn't spam
+            if (this.player.keys['e']) this.player.keys['e'] = false;
+            if (this.player.keys['u']) this.player.keys['u'] = false;
+        }
+    }
+
+    showInstructions() {
+        console.log("=== LEVEL 3: FACE THE WOLF ===");
+        console.log("WASD - Move Red Riding Hood");
+        console.log("Q - Shoot bullets");
+        console.log("Defeat the wolf, then find Grandma!");
+        console.log("============================");
+    }
+
+    showPlayAgainUI() {
+        if (document.getElementById('victory-popup')) return;
+
         const message = document.createElement('div');
         message.id = 'victory-popup';
         message.style.position = 'absolute';
@@ -195,22 +327,25 @@ class GameLevelRedRidingHood3 {
         message.style.boxShadow = '0 10px 25px rgba(0,0,0,0.3)';
         
         message.innerHTML = `
-            <h2 style="color:#b00; margin-top:0;">Victory!</h2>
-            <p>Good job my girl! These old wolfies have gone rampant this season. Now you said you have some cookies?<br>
-            Now let's go have those cookies!</p>
+            <h2 style="color:#b00; margin-top:0;">Adventure Complete!</h2>
+            <p>You and Grandma are safe.</p>
             <br>
             <button onclick="location.reload()" style="padding:12px 24px; font-size:18px; cursor:pointer; background:#b00; color:white; border:none; border-radius:8px; font-weight:bold;">Play Again</button>
         `;
         document.body.appendChild(message);
     }
 
-    resize() {
-        // GameLevel system handles resizing of background, player, and enemy
-    }
+    resize() {}
 
     destroy() {
-        // GameLevel system handles destroying background, player, and enemy
+        const popup = document.getElementById('victory-popup');
+        if (popup) popup.remove();
+        this.gameEnv.gameObjects = [];
     }
+
+    draw() {}
 }
+
+export default GameLevelRedRidingHood3;
 
 export default GameLevelRedRidingHood3;
