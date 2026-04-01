@@ -23,7 +23,8 @@ class GameLevelRedRidingHood1 {
 
     this.continue = true;
     this.scoreSubmitted = false;
-    this.startTime = Date.now(); // <--- ADD THIS LINE HERE
+    this.startTime = Date.now(); 
+    this.saveAttempted = false; 
 
     // --- RESET THE BANK ---
     this.gameEnv.stats = { coinsCollected: 0 };
@@ -138,9 +139,6 @@ class GameLevelRedRidingHood1 {
         this.scoreSubmitted = true; 
         const endTime = Date.now();
         const timeTaken = ((endTime - this.startTime) / 1000).toFixed(2);
-        
-        // This flag tracks if we have already tried to save
-        let saveAttempted = false;
 
         this.successElement.innerHTML = `
             <h1 style="color: red; font-size: 40px; margin-bottom: 10px;">VICTORY!</h1>
@@ -160,22 +158,20 @@ class GameLevelRedRidingHood1 {
         const inputArea = this.successElement.querySelector('#inputArea');
 
         finalBtn.addEventListener('click', () => {
-            // Check if we already tried to save. If yes, JUST MOVE.
-            if (saveAttempted) {
+            // Check the CLASS property (this.saveAttempted)
+            if (this.saveAttempted) {
                 const engine = this.gameEnv.gameControl || this.gameEnv.game?.gameControl || this.gameControl;
                 engine.currentLevelIndex = 1;
                 engine.transitionToLevel();
-                return; // Exit function immediately
+                return; 
             }
 
-            // If we haven't attempted a save yet:
             const name = document.getElementById('playerName').value.trim() || "Anonymous";
             
-            // Disable everything so they can't click again
             finalBtn.disabled = true;
             finalBtn.innerHTML = "SAVING...";
             finalBtn.style.opacity = "0.5";
-            saveAttempted = true; // Set the flag so the next click is a "Move"
+            this.saveAttempted = true; // Update the CLASS property
 
             if (this.leaderboard) {
                 this.leaderboard.submitScore(name, parseFloat(timeTaken), "RedRidingHood")
@@ -183,26 +179,22 @@ class GameLevelRedRidingHood1 {
                         inputArea.style.display = 'none';
                         finalBtn.disabled = false;
                         finalBtn.style.opacity = "1";
-                        finalBtn.style.background = "#28a745"; // Green for success
+                        finalBtn.style.background = "#28a745"; 
                         finalBtn.innerHTML = "GO TO LEVEL 2 →";
                     })
                     .catch(err => {
-                        console.warn("Save failed, enabling skip:", err);
+                        console.warn("Save failed:", err);
                         inputArea.style.display = 'none';
                         finalBtn.disabled = false;
                         finalBtn.style.opacity = "1";
-                        finalBtn.style.background = "#ffc107"; // Orange for "Partial Success"
+                        finalBtn.style.background = "#ffc107"; 
                         finalBtn.innerHTML = "CONTINUE (Skip Save) →";
                     });
-            } else {
-                // If leaderboard doesn't exist at all
-                finalBtn.disabled = false;
-                finalBtn.innerHTML = "CONTINUE →";
             }
         });
     }
   }
-  
+
   draw() {}
   resize() {}
 
@@ -210,6 +202,7 @@ class GameLevelRedRidingHood1 {
    * Cleanup
    */
   destroy() {
+    this.saveAttempted = false;
     if (this.titleElement && this.titleElement.parentNode) this.titleElement.remove();
     if (this.scoreElement && this.scoreElement.parentNode) this.scoreElement.remove();
     if (this.successElement && this.successElement.parentNode) this.successElement.remove();
