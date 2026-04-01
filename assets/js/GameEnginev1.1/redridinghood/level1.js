@@ -148,6 +148,27 @@ class GameLevelRedRidingHood1 {
                 .catch(err => console.error('Save failed (Expected if backend is down):', err));
         }
     }
+
+    this.startTime = Date.now(); 
+
+    // In level1.js update() function, change the submission logic:
+    if (currentScore >= 5 && !this.scoreSubmitted) {
+        this.scoreSubmitted = true; 
+    
+        // Calculate seconds taken
+        const endTime = Date.now();
+        const timeTaken = ((endTime - this.startTime) / 1000).toFixed(2); // e.g., 12.45
+    
+        this.successElement.style.display = 'block';
+        // Update success message to show time
+        this.successElement.querySelector('p').innerHTML = `You collected all 5 cookies in ${timeTaken}s!`;
+
+        if (this.leaderboard) {
+            // Use timeTaken as the score
+            this.leaderboard.submitScore("Red", timeTaken, "RedRidingHood");
+        }
+    }
+
   }
 
   draw() {}
