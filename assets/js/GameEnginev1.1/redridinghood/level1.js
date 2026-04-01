@@ -130,51 +130,62 @@ class GameLevelRedRidingHood1 {
   update() {
     const currentScore = this.gameEnv.stats?.coinsCollected || 0;
     
-    // Update the UI text
     if (this.scoreElement) {
         this.scoreElement.innerHTML = "Cookies Collected: " + currentScore;
     }
 
     // TRIGGER WIN STATE
     if (currentScore >= 5 && !this.scoreSubmitted) {
-        this.scoreSubmitted = true; // Prevents this from running 60 times a second
+        this.scoreSubmitted = true; 
         
         const endTime = Date.now();
         const timeTaken = ((endTime - this.startTime) / 1000).toFixed(2);
 
-        // 1. Update the Success Box with the Input Form
         this.successElement.innerHTML = `
             <h1 style="color: red; font-size: 40px; margin-bottom: 10px;">VICTORY!</h1>
-            <p style="color: white; font-size: 22px; margin-bottom: 20px;">You collected all cookies in ${timeTaken}s!</p>
-            <input type="text" id="playerName" placeholder="Your Name" 
-                   style="padding: 12px; width: 250px; font-size: 18px; border-radius: 8px; border: none; text-align: center;">
-            <br><br>
-            <button id="submitAndMove" style="padding: 15px 30px; font-size: 20px; cursor: pointer; background: red; color: white; border: none; font-weight: bold; border-radius: 8px;">
-                SUBMIT SCORE & CONTINUE
+            <p style="color: white; font-size: 22px; margin-bottom: 20px;">Fastest Cookies in the Woods: ${timeTaken}s</p>
+            <div id="inputSection">
+                <input type="text" id="playerName" placeholder="Enter Your Name" 
+                       style="padding: 12px; width: 250px; font-size: 18px; border-radius: 8px; border: none; text-align: center;">
+                <br><br>
+            </div>
+            <button id="actionBtn" style="padding: 15px 30px; font-size: 20px; cursor: pointer; background: red; color: white; border: none; font-weight: bold; border-radius: 8px;">
+                SUBMIT SCORE
             </button>
         `;
         this.successElement.style.display = 'block';
 
-        // 2. Add the Event Listener for the Submit Button
-        this.successElement.querySelector('#submitAndMove').addEventListener('click', () => {
+        const actionBtn = this.successElement.querySelector('#actionBtn');
+        
+        actionBtn.addEventListener('click', () => {
+            // If the button says "CONTINUE", we just move levels
+            if (actionBtn.innerHTML.includes("CONTINUE")) {
+                const engine = this.gameEnv.gameControl || this.gameEnv.game?.gameControl || this.gameControl;
+                engine.currentLevelIndex = 1;
+                engine.transitionToLevel();
+                return;
+            }
+
+            // Otherwise, we are in "SUBMIT" mode
             const name = document.getElementById('playerName').value.trim() || "Anonymous";
-            
+            actionBtn.innerHTML = "SAVING...";
+            actionBtn.style.opacity = "0.5";
+            actionBtn.disabled = true;
+
             if (this.leaderboard) {
-                // Submit the REAL name and the TIME as the score
                 this.leaderboard.submitScore(name, parseFloat(timeTaken), "RedRidingHood")
                     .then(() => {
-                        console.log("Score saved for:", name);
-                        // Transition to Level 2
-                        const engine = this.gameEnv.gameControl || this.gameEnv.game?.gameControl || this.gameControl;
-                        if (engine && typeof engine.transitionToLevel === 'function') {
-                            engine.currentLevelIndex = 1;
-                            engine.transitionToLevel();
-                        }
+                        // Success! Change the UI to allow moving forward
+                        document.getElementById('inputSection').style.display = 'none';
+                        actionBtn.disabled = false;
+                        actionBtn.style.opacity = "1";
+                        actionBtn.innerHTML = "CONTINUE TO LEVEL 2 →";
+                        actionBtn.style.background = "#28a745"; // Change to green for success
                     })
                     .catch(err => {
-                        console.error("Submission error:", err);
-                        // Fallback to move level even if backend is down
-                        this.gameControl.transitionToLevel(); 
+                        console.error("Score Error:", err);
+                        actionBtn.disabled = false;
+                        actionBtn.innerHTML = "CONTINUE (Skip Save) →";
                     });
             }
         });
