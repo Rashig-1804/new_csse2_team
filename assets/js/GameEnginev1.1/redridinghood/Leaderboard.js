@@ -151,10 +151,11 @@ export default class Leaderboard {
         
         // CRITICAL: Always use fixed positioning to avoid game container position affecting it
         container.style.position = 'fixed';
-        container.style.top = '80px';
-        container.style.left = '20px';
-        container.style.right = 'auto';
-        container.style.zIndex = '1000';
+        container.style.bottom = '20px'; // Change 'top' to 'bottom'
+        container.style.right = '20px';  // Change 'left' to 'right'
+        container.style.left = 'auto';   // Reset left
+        container.style.top = 'auto';    // Reset top
+        container.style.zIndex = '10000';
         
         // Add the widget class for styling
         container.className = 'leaderboard-widget' + (this.initiallyHidden ? ' initially-hidden' : '');
@@ -837,21 +838,26 @@ export default class Leaderboard {
         const list = document.getElementById('leaderboard-list');
         const preview = document.getElementById('leaderboard-preview');
 
-        // Transform backend data to frontend format
-        // Backend returns: { id, user (User object or null), algoName, payload, timestamp }
-        // Frontend needs: { user (string), score, gameName }
-        const transformedData = data
+        const filteredByGame = data.filter(event => {
+        const name = event.payload?.gameName || event.payload?.game || 'Unknown';
+        return name === this.gameName; 
+        });
+
+    // Change 'data' to 'filteredByGame' in the map function below
+        const transformedData = filteredByGame
             .map(event => ({
                 id: event.id,
                 user: event.payload?.user || event.payload?.username || 'Anonymous',
-                username: event.payload?.user || event.payload?.username || 'Anonymous',
                 score: event.payload?.score || 0,
                 gameName: event.payload?.gameName || event.payload?.game || 'Unknown',
-                game: event.payload?.gameName || event.payload?.game || 'Unknown',
                 timestamp: event.timestamp
             }))
-            .sort((a, b) => b.score - a.score); // Sort by score descending
+            .sort((a, b) => b.score - a.score);
 
+        // Transform backend data to frontend format
+        // Backend returns: { id, user (User object or null), algoName, payload, timestamp }
+        // Frontend needs: { user (string), score, gameName }
+    
         let html = '';
 
         if (!Array.isArray(transformedData) || !transformedData.length) {
