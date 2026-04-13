@@ -24,7 +24,7 @@ class GameLevelRedRidingHood4 {
         this.background = new GameEnvBackground(image_data_forest, gameEnv);
 
         // Player data - using ShooterPlayer
-        const sprite_src_red = path + "/images/gamify/chillguy.png";
+        const sprite_src_red = path + "/images/gamify/Finalred.png";
         const sprite_data_red = {
             id: 'RedRidingHood',
             greeting: "Red Riding Hood - Press Q to shoot!",

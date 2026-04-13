@@ -49,11 +49,7 @@ class ShooterPlayer extends Player {
             velocity: velocity,
             gameEnv: this.gameEnv,
             shooter: this,
-            direction: this.facing,
-            spriteData: {
-                src: this.gameEnv.path + '/images/gamify/lrrh-lvl3-bullet.png',
-                pixels: { width: 120, height: 160 }
-            }
+            direction: this.facing
         };
 
         const bullet = new Bullet(bulletData);

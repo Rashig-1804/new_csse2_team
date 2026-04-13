@@ -4,6 +4,7 @@ import ShooterPlayer from './ShooterPlayer.js';
 import Enemy from './Enemy.js';
 import HitMarker from './HitMarker.js';
 import Explosion from './Explosion.js';
+import Npc from './enpeecee.js';
 
 class GameLevelRedRidingHood3 {
     constructor(gameEnv) {
@@ -68,17 +69,49 @@ class GameLevelRedRidingHood3 {
             collisionWidth: wolfPixels.width * wolfScale,
             collisionHeight: wolfPixels.height * wolfScale,
             hitbox: { widthPercentage: 1.0, heightPercentage: 1.0 },
-            hp: 5
+            hp: 5 // Give the wolf some health points to make the fight last a bit longer
         };
 
         this.enemy = new Enemy(enemyData, gameEnv);
         this.enemyDefeated = false;
 
+        // Create Grandma NPC with dynamic dialogue based on wolf status
+        const grandmaData = {
+            id: 'Grandma',
+            src: path + "/images/gamify/lrrh-lvl3-grandma.png",
+            SCALE_FACTOR: 2,
+            STEP_FACTOR: 1000,
+            ANIMATION_RATE: 50,
+            INIT_POSITION: { x: 50, y: 150 },
+            pixels: { height: 1640, width: 2360 },
+            orientation: { rows: 1, columns: 1 },
+            down: { row: 0, start: 0, columns: 1 },
+            interactionRadius: 200, // Large interaction area
+            dialogues: ["WHAT ARE YOU STANDING AROUND FOR? GO KILL that WOLF that barged into MY HOUSE! WITH THE RIFLE I so courageusly gave to you dear-y <3"],
+            // Use reaction property to trigger dialogue on collision
+            reaction: function() {
+                if (!this.grandma) this.grandma = grandmaRef;
+                if (this.grandma && this.grandma.showReactionDialogue) {
+                    // Update dialogue based on wolf defeat status
+                    if (this.enemyDefeated) {
+                        this.grandma.dialogueSystem.dialogues = ["Now, that's the girl I partially raised!!!"];
+                    } else {
+                        this.grandma.dialogueSystem.dialogues = ["WHAT ARE YOU STANDING AROUND FOR? GO KILL that WOLF that barged into MY HOUSE! WITH THE RIFLE I so courageusly gave to you dear-y <3"];
+                    }
+                    this.grandma.showReactionDialogue();
+                }
+            }.bind(this)
+        };
+
+        this.grandma = new Npc(grandmaData, gameEnv);
+        const grandmaRef = this.grandma;
+
         // Set up classes array for GameLevel system
         this.classes = [
             { class: GameEnvBackground, data: image_data_forest },
             { class: ShooterPlayer, data: sprite_data_red },
-            { class: Enemy, data: enemyData }
+            { class: Enemy, data: enemyData },
+            { class: Npc, data: grandmaData }
         ];
 
         // Instructions
@@ -138,26 +171,32 @@ class GameLevelRedRidingHood3 {
                 // Check if enemy is defeated
                 if (enemy.hp <= 0) {
                     this.enemyDefeated = true;
+                    // Store enemy position before destroying
+                    const enemyX = enemy.x;
+                    const enemyY = enemy.y;
+                    const enemyWidth = enemy.width;
+                    const enemyHeight = enemy.height;
+                    
                     // Show explosion for 1s
                     const explosion = new Explosion(
-                        enemy.x + enemy.width / 2,
-                        enemy.y + enemy.height / 2,
+                        enemyX + enemyWidth / 2,
+                        enemyY + enemyHeight / 2,
                         this.gameEnv
                     );
                     this.gameEnv.gameObjects.push(explosion);
 
                     // After 1s, transform wolf into grandma and show message
                     setTimeout(() => {
-                        // Add grandma sprite at wolf's position
+                        // Add grandma sprite at stored wolf's position
                         const grandma = new Image();
                         grandma.src = this.gameEnv.path + '/images/gamify/lrrh-lvl3-grandma.png';
                         const ctx = this.gameEnv.ctx;
                         ctx.drawImage(
                             grandma,
-                            enemy.x,
-                            enemy.y,
-                            enemy.width,
-                            enemy.height
+                            enemyX,
+                            enemyY,
+                            enemyWidth,
+                            enemyHeight
                         );
                         // Show message and link
                         this.showGrandmaVictory();
@@ -195,10 +234,8 @@ class GameLevelRedRidingHood3 {
         message.style.boxShadow = '0 10px 25px rgba(0,0,0,0.3)';
         
         message.innerHTML = `
-            <h2 style="color:#b00; margin-top:0;">Victory!</h2>
-            <p>Good job my girl! These old wolfies have gone rampant this season. Now you said you have some cookies?<br>
-            Now let's go have those cookies!</p>
-            <br>
+            <h2 style="color:#800000; margin-top:0;">Victory!</h2>
+            <p style="color:red;">Good job my girl! These old wolfies have gone rampant this season. Now you said you have some cookies?<br><br></p>
             <button onclick="location.reload()" style="padding:12px 24px; font-size:18px; cursor:pointer; background:#b00; color:white; border:none; border-radius:8px; font-weight:bold;">Play Again</button>
         `;
         document.body.appendChild(message);

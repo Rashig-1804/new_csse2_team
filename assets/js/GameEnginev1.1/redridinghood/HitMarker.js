@@ -4,7 +4,7 @@ class HitMarker {
         this.y = y;
         this.gameEnv = gameEnv;
         this.sprite = new Image();
-        this.sprite.src = gameEnv.path + "/images/lrrh-lvl3-hit-marker.png";
+        this.sprite.src = gameEnv.path + "/images/gamify/lrrh-lvl3-hit-marker.png";
         this.width = 32;
         this.height = 32;
         this.creationTime = Date.now();
