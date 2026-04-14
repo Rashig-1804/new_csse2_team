@@ -224,7 +224,7 @@ class GameLevelRedRidingHood3 {
         message.style.top = '40%';
         message.style.left = '50%';
         message.style.transform = 'translate(-50%, -50%)';
-        message.style.background = 'rgba(255,255,255,0.95)';
+        message.style.background = 'rgba(255, 225, 159, 0.95)';
         message.style.border = '4px solid #b00';
         message.style.padding = '32px';
         message.style.borderRadius = '16px';
@@ -234,8 +234,8 @@ class GameLevelRedRidingHood3 {
         message.style.boxShadow = '0 10px 25px rgba(0,0,0,0.3)';
         
         message.innerHTML = `
-            <h2 style="color:#800000; margin-top:0;">Victory!</h2>
-            <p style="color:red;">Good job my girl! These old wolfies have gone rampant this season. Now you said you have some cookies?<br><br></p>
+            <h2 style="color:yellow; margin-top:0;">Victory!</h2>
+            <p style="color:blue;">Good job my girl! These old wolfies have gone rampant this season. Now you said you have some cookies?<br><br></p>
             <button onclick="location.reload()" style="padding:12px 24px; font-size:18px; cursor:pointer; background:#b00; color:white; border:none; border-radius:8px; font-weight:bold;">Play Again</button>
         `;
         document.body.appendChild(message);
