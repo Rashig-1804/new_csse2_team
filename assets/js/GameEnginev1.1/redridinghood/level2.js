@@ -211,7 +211,7 @@ class GameLevelRedRidingHood2 {
     let path = gameEnv.path;
 
     this.continue = true;
-    this.debugMode = true; // Set to true to see the green path and enable click logging
+    this.debugMode = false; // Set to true to see the green path and enable click logging
     this.wonGame = false;
 
     this.titleElement = document.createElement('div');
@@ -447,7 +447,7 @@ class GameLevelRedRidingHood2 {
     }
 
     // Dynamically align spawn point slightly down the path so she isn't trapped on the starting edge!
-    this.redStartPosition = { x: centerPoints[3].x - 45, y: centerPoints[3].y - 52 };
+    this.redStartPosition = { x: centerPoints[3].x - 45, y: centerPoints[3].y - 100 };
 
     const image_data_chase = {
       name: 'chase',
@@ -458,7 +458,7 @@ class GameLevelRedRidingHood2 {
     const sprite_data_red = {
       id: 'Red Riding Hood',
       src: path + "/images/gamify/ridinghood/red.png",
-      SCALE_FACTOR: 9, STEP_FACTOR: 1000, ANIMATION_RATE: 50,
+      SCALE_FACTOR: 6, STEP_FACTOR: 1000, ANIMATION_RATE: 50,
       INIT_POSITION: { x: this.redStartPosition.x, y: this.redStartPosition.y },
       pixels: { height: 192, width: 144 },
       orientation: { rows: 4, columns: 3 },
