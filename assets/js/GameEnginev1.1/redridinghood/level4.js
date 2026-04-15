@@ -12,6 +12,12 @@ class GameLevelRedRidingHood4 {
         let height = gameEnv.innerHeight;
         let path = gameEnv.path;
 
+        // Clean up any leftover victory popup from level 3
+        const existingPopup = document.getElementById('victory-popup');
+        if (existingPopup && existingPopup.parentNode) {
+            existingPopup.remove();
+        }
+
         // Background data
         const image_src_forest = path + "/images/gamify/lrrh-lvl3-bg-clipped.png";
         const image_data_forest = {
@@ -71,6 +77,28 @@ class GameLevelRedRidingHood4 {
         this.scoreDisplay.style.zIndex = '1000';
         this.scoreDisplay.textContent = 'Wolves Eliminated: 0';
         document.body.appendChild(this.scoreDisplay);
+
+        // Secret level banner
+        this.secretBanner = document.createElement('div');
+        this.secretBanner.id = 'secret-level-banner';
+        this.secretBanner.style.position = 'absolute';
+        this.secretBanner.style.top = '40px';
+        this.secretBanner.style.left = '50%';
+        this.secretBanner.style.transform = 'translateX(-50%)';
+        this.secretBanner.style.background = 'rgba(0, 0, 0, 0.7)';
+        this.secretBanner.style.color = 'red';
+        this.secretBanner.style.padding = '10px 18px';
+        this.secretBanner.style.borderRadius = '6px';
+        this.secretBanner.style.fontSize = '16px';
+        this.secretBanner.style.fontWeight = 'bold';
+        this.secretBanner.style.zIndex = '1000';
+        this.secretBanner.textContent = 'SECRET LEVEL 4: WOLF SHOOTING MINIGAME PRESS Q TO SHOOT';
+        document.body.appendChild(this.secretBanner);
+        setTimeout(() => {
+            if (this.secretBanner && this.secretBanner.parentNode) {
+                this.secretBanner.remove();
+            }
+        }, 10000);
 
         // Timer display
         this.timerDisplay = document.createElement('div');
@@ -330,6 +358,10 @@ class GameLevelRedRidingHood4 {
         // Remove score display
         if (this.scoreDisplay && this.scoreDisplay.parentNode) {
             this.scoreDisplay.remove();
+        }
+        // Remove secret banner when level is destroyed
+        if (this.secretBanner && this.secretBanner.parentNode) {
+            this.secretBanner.remove();
         }
         // Remove timer display
         if (this.timerDisplay && this.timerDisplay.parentNode) {
