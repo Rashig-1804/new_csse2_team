@@ -3,6 +3,7 @@ import GameEnvBackground from '../essentials/GameEnvBackground.js';
 import ShooterPlayer from './ShooterPlayer.js';
 import Enemy from './Enemy.js';
 import HitMarker from './HitMarker.js';
+import Explosion from './Explosion.js';
 
 class GameLevelRedRidingHood4 {
     constructor(gameEnv) {
@@ -15,7 +16,7 @@ class GameLevelRedRidingHood4 {
         const image_src_forest = path + "/images/gamify/lrrh-lvl3-bg-clipped.png";
         const image_data_forest = {
             name: 'forest',
-            greeting: "Level 4: Shooting Minigame! Press Q to shoot!",
+            greeting: "Level 4: Wolf Extermination! Press Q to shoot!",
             src: image_src_forest,
             pixels: { height: 580, width: 1038 }
         };
@@ -28,20 +29,20 @@ class GameLevelRedRidingHood4 {
         const sprite_data_red = {
             id: 'RedRidingHood',
             greeting: "Red Riding Hood - Press Q to shoot!",
-            src: path + "/images/gamify/lrrh-lvl3-rider-gun-sh.png",
+            src: path + "/images/gamify/Finalred.png",
             SCALE_FACTOR: 6,
             STEP_FACTOR: 800,
             ANIMATION_RATE: 50,
             INIT_POSITION: { x: width / 2 - 50, y: height - 100 },
-            pixels: { height: 384, width: 512 },
+            pixels: { height: 144, width: 192 },
             orientation: { rows: 3, columns: 4 },
             down: { row: 0, start: 0, columns: 3 },
-            left: { row: 2, start: 0, columns: 3 },
-            right: { row: 1, start: 0, columns: 3 },
+            left: { row: 1, start: 0, columns: 3 },
+            right: { row: 2, start: 0, columns: 3 },
             up: { row: 3, start: 0, columns: 3 },
             hitbox: { widthPercentage: 0.45, heightPercentage: 0.2 },
             keypress: { up: 87, left: 65, down: 83, right: 68 },
-            shootCooldown: 300 // Faster shooting for minigame
+            shootCooldown: 500
         };
 
         // Create shooter player
@@ -52,9 +53,39 @@ class GameLevelRedRidingHood4 {
         this.timeLeft = 60; // 60 seconds
         this.gameOver = false;
         this.enemies = [];
-        this.maxEnemies = 5;
         this.enemySpawnRate = 2000; // Spawn every 2 seconds
+        this.enemyLifetime = 5000; // Stay for 5 seconds
         this.lastSpawnTime = Date.now();
+
+        // Score display
+        this.scoreDisplay = document.createElement('div');
+        this.scoreDisplay.style.position = 'absolute';
+        this.scoreDisplay.style.bottom = '20px';
+        this.scoreDisplay.style.right = '20px';
+        this.scoreDisplay.style.background = 'rgba(0, 0, 0, 0.7)';
+        this.scoreDisplay.style.color = 'white';
+        this.scoreDisplay.style.padding = '10px';
+        this.scoreDisplay.style.borderRadius = '5px';
+        this.scoreDisplay.style.fontSize = '18px';
+        this.scoreDisplay.style.fontWeight = 'bold';
+        this.scoreDisplay.style.zIndex = '1000';
+        this.scoreDisplay.textContent = 'Wolves Eliminated: 0';
+        document.body.appendChild(this.scoreDisplay);
+
+        // Timer display
+        this.timerDisplay = document.createElement('div');
+        this.timerDisplay.style.position = 'absolute';
+        this.timerDisplay.style.bottom = '20px';
+        this.timerDisplay.style.left = '20px';
+        this.timerDisplay.style.background = 'rgba(0, 0, 0, 0.7)';
+        this.timerDisplay.style.color = 'white';
+        this.timerDisplay.style.padding = '10px';
+        this.timerDisplay.style.borderRadius = '5px';
+        this.timerDisplay.style.fontSize = '18px';
+        this.timerDisplay.style.fontWeight = 'bold';
+        this.timerDisplay.style.zIndex = '1000';
+        this.timerDisplay.textContent = 'Time: 60';
+        document.body.appendChild(this.timerDisplay);
 
         // Set up classes array for GameLevel system
         this.classes = [
@@ -65,6 +96,7 @@ class GameLevelRedRidingHood4 {
         // Timer
         this.timerInterval = setInterval(() => {
             this.timeLeft--;
+            this.timerDisplay.textContent = `Time: ${this.timeLeft}`;
             if (this.timeLeft <= 0) {
                 this.endGame();
             }
@@ -81,21 +113,20 @@ class GameLevelRedRidingHood4 {
         const player = this.gameEnv.gameObjects.find(obj => obj instanceof ShooterPlayer);
         if (!player) return;
 
-        // Spawn enemies randomly
+        // Spawn enemies every 3 seconds
         const currentTime = Date.now();
-        if (currentTime - this.lastSpawnTime > this.enemySpawnRate && this.enemies.length < this.maxEnemies) {
+        if (currentTime - this.lastSpawnTime > this.enemySpawnRate) {
             this.spawnEnemy();
             this.lastSpawnTime = currentTime;
         }
 
-        // Update enemies (cardboard cutout behavior)
+        // Update enemies and remove expired ones
         this.enemies.forEach((enemy, index) => {
             enemy.update();
-            // Remove enemy after 3 seconds if not shot
-            if (currentTime - enemy.spawnTime > 3000) {
+            // Remove enemy after 5 seconds if not shot
+            if (currentTime - enemy.spawnTime > this.enemyLifetime) {
                 enemy.destroy();
                 this.enemies.splice(index, 1);
-                this.score -= 5; // Penalty for missing
             }
         });
 
@@ -111,12 +142,20 @@ class GameLevelRedRidingHood4 {
                     );
                     this.gameEnv.gameObjects.push(hitMarker);
 
+                    // Create explosion at enemy position
+                    const explosion = new Explosion(
+                        enemy.x + enemy.width / 2,
+                        enemy.y + enemy.height / 2,
+                        this.gameEnv
+                    );
+                    this.gameEnv.gameObjects.push(explosion);
+
                     // Enemy defeated!
                     bullet.destroy();
                     enemy.destroy();
                     this.enemies.splice(enemyIndex, 1);
-                    this.score += 10;
-                    console.log(`Score: ${this.score}`);
+                    this.score++;
+                    this.scoreDisplay.textContent = `Wolves Eliminated: ${this.score}`;
                 }
             });
         });
@@ -130,18 +169,25 @@ class GameLevelRedRidingHood4 {
         const x = Math.random() * (width - 100);
         const y = Math.random() * (height - 200); // Keep above player area
 
+        const wolfScale = 3;
+        const wolfPixels = { height: 395, width: 632 };
+
         const enemyData = {
-            id: `Enemy-${Date.now()}`,
-            greeting: "Target!",
-            src: this.gameEnv.path + "/images/gamify/chillguy.png",
-            SCALE_FACTOR: 6,
+            id: `Wolf-${Date.now()}`,
+            greeting: "Wolf!",
+            src: this.gameEnv.path + "/images/gamify/ridinghood/wolfff.png",
+            SCALE_FACTOR: wolfScale,
             STEP_FACTOR: 1000,
             ANIMATION_RATE: 50,
             INIT_POSITION: { x: x, y: y },
-            pixels: { height: 384, width: 512 },
-            orientation: { rows: 3, columns: 4 },
-            down: { row: 0, start: 0, columns: 3 },
-            hitbox: { widthPercentage: 0.8, heightPercentage: 0.8 }
+            pixels: wolfPixels,
+            orientation: { rows: 1, columns: 1 },
+            down: { row: 0, start: 0, columns: 1 },
+            // Force the hitbox to match the actual pixel rectangle scaled
+            collisionWidth: wolfPixels.width * wolfScale,
+            collisionHeight: wolfPixels.height * wolfScale,
+            hitbox: { widthPercentage: 1.0, heightPercentage: 1.0 },
+            hp: 1 // 1 HP, 1 bullet = 1 heart point
         };
 
         const enemy = new Enemy(enemyData, this.gameEnv);
@@ -152,17 +198,125 @@ class GameLevelRedRidingHood4 {
     endGame() {
         this.gameOver = true;
         clearInterval(this.timerInterval);
-        console.log(`🎯 GAME OVER! Final Score: ${this.score}`);
-        console.log(`Time's up! You defeated ${this.score / 10} enemies!`);
+        
+        // Show first message
+        this.showFirstMessage();
+    }
+
+    showFirstMessage() {
+        const message = document.createElement('div');
+        message.style.position = 'absolute';
+        message.style.top = '50%';
+        message.style.left = '50%';
+        message.style.transform = 'translate(-50%, -50%)';
+        message.style.background = 'linear-gradient(135deg, #2d0a0a, #6b1a1a)';
+        message.style.border = '4px solid #ff4444';
+        message.style.borderRadius = '20px';
+        message.style.padding = '40px 50px';
+        message.style.textAlign = 'center';
+        message.style.zIndex = '99999';
+        message.style.boxShadow = '0 0 40px rgba(255,0,0,0.6), 0 0 80px rgba(255,0,0,0.3)';
+        message.style.maxWidth = '600px';
+        
+        message.innerHTML = `
+            <div style="color: #ffcccc; font-size: 32px; font-weight: normal; font-family: 'Courier New', monospace; margin-bottom: 15px;">
+                WOLF EXTERMINATION COMPLETE
+            </div>
+            <div style="color: #ffcccc; font-size: 24px; font-family: 'Courier New', monospace; line-height: 1.8; margin-bottom: 25px;">
+                YOU ELIMINATED ${this.score} WOLVES! CONGRATULATIONS
+            </div>
+            <button id="firstContinueBtn" style="
+                background: #ff2222;
+                color: white;
+                border: none;
+                padding: 12px 30px;
+                font-size: 18px;
+                font-weight: 900;
+                font-family: 'Courier New', monospace;
+                border-radius: 10px;
+                cursor: pointer;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                box-shadow: 0 0 15px rgba(255,0,0,0.5);
+            ">Continue →</button>
+        `;
+        
+        document.body.appendChild(message);
+        
+        const btn = document.getElementById('firstContinueBtn');
+        if (btn) {
+            btn.onclick = () => {
+                message.remove();
+                this.showSecondMessage();
+            };
+        }
+    }
+
+    showSecondMessage() {
+        const message = document.createElement('div');
+        message.style.position = 'absolute';
+        message.style.top = '50%';
+        message.style.left = '50%';
+        message.style.transform = 'translate(-50%, -50%)';
+        message.style.background = 'linear-gradient(135deg, #2d0a0a, #6b1a1a)';
+        message.style.border = '4px solid #ff4444';
+        message.style.borderRadius = '20px';
+        message.style.padding = '40px 50px';
+        message.style.textAlign = 'center';
+        message.style.zIndex = '99999';
+        message.style.boxShadow = '0 0 40px rgba(255,0,0,0.6), 0 0 80px rgba(255,0,0,0.3)';
+        message.style.maxWidth = '700px';
+        
+        message.innerHTML = `
+            <div style="color: #ffcccc; font-size: 28px; font-weight: normal; font-family: 'Courier New', monospace; margin-bottom: 15px;">
+                REFLECTIONS
+            </div>
+            <div style="color: #ffcccc; font-size: 18px; font-family: 'Courier New', monospace; line-height: 1.8; margin-bottom: 25px;">
+                that's great and all, but what about your grandma? oh no I think she's already screwed over… or not these wolves don't hurt much at all, even if you stick your finger up their butts oh well she is frail though… I'm distracted now, what was the point of this?
+            </div>
+            <button id="secondContinueBtn" style="
+                background: #ff2222;
+                color: white;
+                border: none;
+                padding: 12px 30px;
+                font-size: 18px;
+                font-weight: 900;
+                font-family: 'Courier New', monospace;
+                border-radius: 10px;
+                cursor: pointer;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                box-shadow: 0 0 15px rgba(255,0,0,0.5);
+            ">End Game ✕</button>
+        `;
+        
+        document.body.appendChild(message);
+        
+        const btn = document.getElementById('secondContinueBtn');
+        if (btn) {
+            btn.onclick = () => {
+                message.remove();
+                this.finishGame();
+            };
+        }
+    }
+
+    finishGame() {
+        // Game ends here - could show credits or return to menu
+        console.log(`🎯 GAME COMPLETE! Final Score: ${this.score} wolves eliminated!`);
+        // For now, just reload to restart
+        location.reload();
     }
 
     showInstructions() {
-        console.log("=== LEVEL 4: SHOOTING MINIGAME ===");
+        console.log("=== LEVEL 4: WOLF EXTERMINATION ===");
         console.log("WASD - Move Red Riding Hood");
-        console.log("Q - Shoot bullets");
-        console.log("Targets appear randomly - shoot them before they disappear!");
-        console.log("Score: +10 for hits, -5 for misses");
+        console.log("Q - Shoot bullets (1 bullet = 1 HP)");
+        console.log("Wolves spawn every 2 seconds and stay for 5 seconds");
+        console.log("Each wolf has 1 HP - eliminate as many as possible!");
         console.log("Time: 60 seconds");
+        console.log("Score counter in bottom right shows eliminated wolves");
+        console.log("Timer in bottom left shows remaining time");
         console.log("================================");
     }
 
@@ -173,6 +327,14 @@ class GameLevelRedRidingHood4 {
     destroy() {
         clearInterval(this.timerInterval);
         this.enemies.forEach(enemy => enemy.destroy());
+        // Remove score display
+        if (this.scoreDisplay && this.scoreDisplay.parentNode) {
+            this.scoreDisplay.remove();
+        }
+        // Remove timer display
+        if (this.timerDisplay && this.timerDisplay.parentNode) {
+            this.timerDisplay.remove();
+        }
         // GameLevel system handles destroying background and player
     }
 }
