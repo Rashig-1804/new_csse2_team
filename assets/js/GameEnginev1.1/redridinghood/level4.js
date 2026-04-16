@@ -230,7 +230,7 @@ class GameLevelRedRidingHood4 {
         // Show first message
         this.showFirstMessage();
     }
-
+// loves and kisses
     showFirstMessage() {
         const message = document.createElement('div');
         message.style.position = 'absolute';
