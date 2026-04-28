@@ -19,6 +19,13 @@ class ShooterPlayer extends Player {
         else if (this.velocity.y > 0) this.facing = 'down';
         else if (this.velocity.y < 0) this.facing = 'up';
 
+        // Fix diagonal movement animation issue by ensuring direction matches sprite data
+        // Map diagonal directions to their base directions for proper animation
+        if (this.direction === 'upLeft') this.direction = 'left';
+        else if (this.direction === 'upRight') this.direction = 'right';
+        else if (this.direction === 'downLeft') this.direction = 'left';
+        else if (this.direction === 'downRight') this.direction = 'right';
+
         // Check for Q key press to shoot
         if (this.pressedKeys[81]) { // Q key
             this.shoot();
