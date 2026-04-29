@@ -65,10 +65,10 @@ class GameLevelRedRidingHood3 {
             pixels: wolfPixels,
             orientation: { rows: 1, columns: 1 },
             down: { row: 0, start: 0, columns: 1 },
-            // Force the hitbox to match the actual pixel rectangle scaled
-            collisionWidth: wolfPixels.width * wolfScale,
-            collisionHeight: wolfPixels.height * wolfScale,
-            hitbox: { widthPercentage: 1.0, heightPercentage: 1.0 },
+            // Smaller hitbox than the sprite (85% of actual size)
+            collisionWidth: wolfPixels.width * wolfScale * 0.85,
+            collisionHeight: wolfPixels.height * wolfScale * 0.85,
+            hitbox: { widthPercentage: 0.85, heightPercentage: 0.85 },
             hp: 5 // Give the wolf some health points to make the fight last a bit longer
         };
 
@@ -79,14 +79,14 @@ class GameLevelRedRidingHood3 {
         const grandmaData = {
             id: 'Grandma',
             src: path + "/images/gamify/lrrh-lvl3-grandma.png",
-            SCALE_FACTOR: 2,
+            SCALE_FACTOR: 4, // Shrink canvas (ie grandma and interaction physical box)
             STEP_FACTOR: 1000,
             ANIMATION_RATE: 50,
             INIT_POSITION: { x: 50, y: 150 },
-            pixels: { height: 1640, width: 2360 },
+            pixels: { height: 820, width: 1180 },
             orientation: { rows: 1, columns: 1 },
             down: { row: 0, start: 0, columns: 1 },
-            interactionRadius: 200, // Large interaction area
+            interactionRadius: 400, // Interaction area (now half the previous size)
             dialogues: ["WHAT ARE YOU STANDING AROUND FOR? GO KILL that WOLF that barged into MY HOUSE! WITH THE RIFLE I so courageusly gave to you dear-y <3"],
             // Use reaction property to trigger dialogue on collision
             reaction: function() {
@@ -135,23 +135,11 @@ class GameLevelRedRidingHood3 {
             height: player.height
         };
         const wolfBox = {
-            x: enemy.x,
-            y: enemy.y,
-            width: enemy.width,
-            height: enemy.height
+            x: enemy.x + enemy.width * 0.15,  // Offset by 15% on each side (shrink by 30% total)
+            y: enemy.y + enemy.height * 0.15, // Offset by 15% on top and bottom (shrink by 30% total)
+            width: enemy.width * 0.7,          // Use only 70% of width
+            height: enemy.height * 0.7         // Use only 70% of height
         };
-        if (
-            playerBox.x < wolfBox.x + wolfBox.width &&
-            playerBox.x + playerBox.width > wolfBox.x &&
-            playerBox.y < wolfBox.y + wolfBox.height &&
-            playerBox.y + playerBox.height > wolfBox.y
-        ) {
-            // Push player back out of wolf's sprite area
-            if (player.velocity.x > 0) player.position.x = wolfBox.x - playerBox.width;
-            else if (player.velocity.x < 0) player.position.x = wolfBox.x + wolfBox.width;
-            if (player.velocity.y > 0) player.position.y = wolfBox.y - playerBox.height;
-            else if (player.velocity.y < 0) player.position.y = wolfBox.y + wolfBox.height;
-        }
 
         // Check bullet collisions with enemy
         player.bullets.forEach(bullet => {
@@ -206,6 +194,20 @@ class GameLevelRedRidingHood3 {
                 }
             }
         });
+        
+        // Check if player is within wolf's collision box for pushback
+        if (
+            playerBox.x < wolfBox.x + wolfBox.width &&
+            playerBox.x + playerBox.width > wolfBox.x &&
+            playerBox.y < wolfBox.y + wolfBox.height &&
+            playerBox.y + playerBox.height > wolfBox.y
+        ) {
+            // Push player back out of wolf's smaller collision area
+            if (player.velocity.x > 0) player.position.x = wolfBox.x - playerBox.width;
+            else if (player.velocity.x < 0) player.position.x = wolfBox.x + wolfBox.width;
+            if (player.velocity.y > 0) player.position.y = wolfBox.y - playerBox.height;
+            else if (player.velocity.y < 0) player.position.y = wolfBox.y + wolfBox.height;
+        }
     }
 
     showInstructions() {
