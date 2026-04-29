@@ -9,4 +9,5 @@ gem "csv", "~> 3.3"
 gem "bigdecimal", "~> 4.0"
 gem "base64", "~> 0.3.0"
 gem "mutex_m", "~> 0.3.0"
-gem "liquid", "~> 5.0"
+gem 'liquid', '~> 4.0'
+gem "faraday-retry", "~> 2.4"

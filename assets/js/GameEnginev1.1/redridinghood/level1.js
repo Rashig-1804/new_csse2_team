@@ -11,6 +11,11 @@ class GameLevelRedRidingHood1 {
     let height = gameEnv.innerHeight;
     let path = gameEnv.path;
 
+    // Physics variables
+    this.vy = 0;
+    this.gravity = 0.5;
+    this.isGrounded = false;
+
     this.leaderboard = new Leaderboard(this.gameControl, {
         gameName: 'RedRidingHood',
         initiallyHidden: false
@@ -52,7 +57,7 @@ class GameLevelRedRidingHood1 {
         name: 'wolf', id: 'The Big Bad Wolf',
         src: path + "/images/gamify/ridinghood/wolfff.png",
         SCALE_FACTOR: 5, 
-        INIT_POSITION: { x: 0.5, y: 0.7 }, 
+        INIT_POSITION: { x: 0.05, y: 0.55 }, 
         pixels: { width: 632, height: 395 }
     };
 
@@ -72,6 +77,27 @@ class GameLevelRedRidingHood1 {
   }
  
   update() {
+    // Gravity and Physics Logic
+    const player = this.gameEnv.gameObjects.find(obj => obj.id === 'player');
+    if (player) {
+        this.vy += this.gravity;
+        player.position.y += this.vy;
+
+        const floor = this.gameEnv.innerHeight - player.height;
+        if (player.position.y >= floor) {
+            player.position.y = floor;
+            this.vy = 0;
+            this.isGrounded = true;
+        } else {
+            this.isGrounded = false;
+        }
+
+        if (player.pressedKeys?.[87] && this.isGrounded) {
+            this.vy = -10;
+            this.isGrounded = false;
+        }
+    }
+
     const currentScore = this.gameEnv.stats?.coinsCollected || 0;
     if (this.scoreElement) this.scoreElement.innerHTML = "Cookies Collected: " + currentScore;
 
