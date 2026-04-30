@@ -79,11 +79,11 @@ class GameLevelRedRidingHood3 {
         const grandmaData = {
             id: 'Grandma',
             src: path + "/images/gamify/lrrh-lvl3-grandma.png",
-            SCALE_FACTOR: 4, // Shrink canvas (ie grandma and interaction physical box)
+            SCALE_FACTOR: 6, // Shrink canvas (ie grandma and interaction physical box)
             STEP_FACTOR: 1000,
             ANIMATION_RATE: 50,
             INIT_POSITION: { x: 50, y: 150 },
-            pixels: { height: 820, width: 1180 },
+            pixels: { height: 480, width: 480 },
             orientation: { rows: 1, columns: 1 },
             down: { row: 0, start: 0, columns: 1 },
             interactionRadius: 400, // Interaction area (now half the previous size)
