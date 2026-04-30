@@ -58,7 +58,10 @@ class GameLevelRedRidingHood1 {
         src: path + "/images/gamify/ridinghood/wolfff.png",
         SCALE_FACTOR: 5, 
         INIT_POSITION: { x: 0.05, y: 0.55 }, 
-        pixels: { width: 632, height: 395 }
+        pixels: { width: 632, height: 395 },
+        // ADD THESE TWO LINES BELOW:
+        greeting: "Where are you going with those unencrypted cookies, Little Red?",
+        expertise: "the Big Bad Wolf who is also a Senior Security Engineer. Use wolf metaphors and computer science jargon."
     };
 
     this.classes = [

@@ -13,9 +13,9 @@ class Wolf extends Character {
             data.up = { row: 0, start: 0, columns: 1 };
 
             // Required for Teacher's AiNpc.js
-            data.expertise = "the woods";
+            data.expertise = "the Big Bad Wolf from the fairy tale Little Red Riding Hood. You are hungry, cunning, and deceptive. Your goal is to trick Red Riding Hood so you can eat her and her grandmother. Speak with growls and a dark, fairy-tale tone.";
             data.chatHistory = [];
-            data.greeting = "Good morning, Little Red Riding Hood. Where are you going so early?";
+            data.greeting = "Good morning, Little Red Riding Hood. What brings a sweet thing like you into these deep, dark woods?";
             data.dialogues = ["Where are you going?", "What is in the basket?"];
             data.knowledgeBase = {
                 "the woods": [
@@ -46,6 +46,17 @@ class Wolf extends Character {
         if (!this.isInteracting) {
             this.handleAiTrigger();
         }
+    }
+
+    // LOCAL BRAIN ADDITION: This catches the user message and provides a Wolf response locally
+    handleResponse(message) {
+        const msg = message.toLowerCase();
+        if (msg.includes("who are you")) return "I am the Big Bad Wolf... and you look delicious.";
+        if (msg.includes("grandma")) return "She's already waiting for us at the cottage. Why don't you hurry along?";
+        if (msg.includes("basket") || msg.includes("food")) return "Is that cake I smell? I love treats... and little girls.";
+        if (msg.includes("hi") || msg.includes("hello")) return this.spriteData.greeting;
+        
+        return "Grrr... stop talking and show me what's in that basket!";
     }
 
     handleAiTrigger() {
