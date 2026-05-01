@@ -236,8 +236,8 @@ class GameLevelRedRidingHood3 {
         message.style.boxShadow = '0 10px 25px rgba(0,0,0,0.3)';
         
         message.innerHTML = `
-            <h2 style="color:yellow; margin-top:0;">Victory!</h2>
-            <p style="color:blue;">Good job my girl! These old wolfies have gone rampant this season. Now you said you have some cookies?<br><br></p>
+            <h2 style="color:white; margin-top:0;">Victory!</h2>
+            <p style="color:#b00 !important;">Good job my girl! These old wolfies have gone rampant this season. Now you said you have some cookies?<br><br></p>
             <button onclick="location.reload()" style="padding:12px 24px; font-size:18px; cursor:pointer; background:#b00; color:white; border:none; border-radius:8px; font-weight:bold;">Play Again</button>
         `;
         document.body.appendChild(message);
