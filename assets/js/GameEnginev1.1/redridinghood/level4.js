@@ -300,7 +300,7 @@ class GameLevelRedRidingHood4 {
                 Now then,
             </div>
             <div style="color: #ffcccc; font-size: 18px; font-family: 'Courier New', monospace; line-height: 1.8; margin-bottom: 25px;">
-                wow incredible, even after that first wolf encounter, you were still able to take down the rest of the raid! Now you'll really be able to enjoy grandma's cookies!!! 
+                wow incredible, even after that first wolf encounter, you were still able to take down the rest of the raid! Now you'll really be able to enjoy those cookies!!! 
             </div>
             <button id="secondContinueBtn" style="
                 background: #ff2222;
