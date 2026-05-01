@@ -297,10 +297,10 @@ class GameLevelRedRidingHood4 {
         
         message.innerHTML = `
             <div style="color: #ffcccc; font-size: 28px; font-weight: normal; font-family: 'Courier New', monospace; margin-bottom: 15px;">
-                REFLECTIONS
+                Now then,
             </div>
             <div style="color: #ffcccc; font-size: 18px; font-family: 'Courier New', monospace; line-height: 1.8; margin-bottom: 25px;">
-                that's great and all, but what about your grandma? oh no I think she's already screwed over… or not these wolves don't hurt much at all, even if you stick your finger up their butts oh well she is frail though… I'm distracted now, what was the point of this?
+                wow incredible, even after that first wolf encounter, you were still able to take down the rest of the raid! Now you'll really be able to enjoy grandma's cookies!!! 
             </div>
             <button id="secondContinueBtn" style="
                 background: #ff2222;
