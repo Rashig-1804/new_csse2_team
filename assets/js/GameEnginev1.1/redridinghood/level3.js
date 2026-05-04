@@ -106,6 +106,10 @@ class GameLevelRedRidingHood3 {
         this.grandma = new Npc(grandmaData, gameEnv);
         const grandmaRef = this.grandma;
 
+        this.grandmaClickCount = 0;
+        this.handleGrandmaClickBound = this.handleGrandmaClick.bind(this);
+        window.addEventListener('mousedown', this.handleGrandmaClickBound);
+
         // Set up classes array for GameLevel system
         this.classes = [
             { class: GameEnvBackground, data: image_data_forest },
@@ -218,6 +222,42 @@ class GameLevelRedRidingHood3 {
         console.log("============================");
     }
 
+    handleGrandmaClick(event) {
+        if (!this.grandma || !this.gameEnv.canvas) return;
+
+        const rect = this.gameEnv.canvas.getBoundingClientRect();
+        const clickX = event.clientX - rect.left;
+        const clickY = event.clientY - rect.top;
+
+        // Check if click is directly on grandma sprite
+        if (clickX >= this.grandma.position.x && clickX <= this.grandma.position.x + this.grandma.width &&
+            clickY >= this.grandma.position.y && clickY <= this.grandma.position.y + this.grandma.height) {
+            if (this.grandma.dialogueSystem) {
+                this.grandma.dialogueSystem.dialogues = ["this level doesn't use a mouse deary, my life is currently in danger due to that cloud with bones"];
+                this.grandma.showReactionDialogue();
+            }
+            return;
+        }
+
+        // Check if click is within interaction radius for 1-click counter
+        const centerX = this.grandma.position.x + this.grandma.width / 2;
+        const centerY = this.grandma.position.y + this.grandma.height / 2;
+        const radius = this.grandma.spriteData?.interactionRadius || 100;
+
+        if (Math.hypot(clickX - centerX, clickY - centerY) > radius) {
+            return;
+        }
+
+        this.grandmaClickCount += 1;
+        if (this.grandmaClickCount >= 1) {
+            this.grandmaClickCount = 0;
+            if (this.grandma.dialogueSystem) {
+                this.grandma.dialogueSystem.dialogues = ["Deary. HURRY! Q to shoot WASD to move top down esq, figure out the rest #combos"];
+                this.grandma.showReactionDialogue();
+            }
+        }
+    }
+
 
    showGrandmaVictory() {
         const message = document.createElement('div');
@@ -249,6 +289,9 @@ class GameLevelRedRidingHood3 {
 
     destroy() {
         // GameLevel system handles destroying background, player, and enemy
+        if (this.handleGrandmaClickBound) {
+            window.removeEventListener('mousedown', this.handleGrandmaClickBound);
+        }
     }
 }
 
